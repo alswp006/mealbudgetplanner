@@ -1,5 +1,15 @@
 import { describe, it, expect } from "vitest";
 import type { MealRecord } from "@/lib/types";
+import {
+  getMonthSpent,
+  getAllowancePerMeal,
+  calcPaceBadge,
+  isOverBudget,
+  pruneOldData,
+  getRemainingMeals,
+  getSpentByCategory,
+  getRecent7DaysStats,
+} from "@/lib/calc";
 
 /**
  * TDD RED PHASE — 파생계산 유틸 & 데이터 정리 (packet-0003)
@@ -516,57 +526,3 @@ describe("파생계산 유틸 & 데이터 정리 (packet-0003)", () => {
     });
   });
 });
-
-/**
- * PLACEHOLDER FUNCTION SIGNATURES (Coder will implement these)
- * Remove these once implementation is complete.
- */
-
-declare function getMonthSpent(
-  records: MealRecord[],
-  month: string
-): number;
-
-declare function getAllowancePerMeal(
-  remainingBudget: number,
-  remainingMeals: number
-): number | null;
-
-declare function calcPaceBadge(
-  budget: number,
-  spent: number,
-  dayN: number,
-  totalDays: number
-): "ahead" | "ontrack" | "over";
-
-declare function isOverBudget(
-  budget: number,
-  spent: number
-): { over: boolean; excess: number };
-
-declare function pruneOldData(
-  records: MealRecord[],
-  today: string
-): MealRecord[];
-
-declare function getRemainingMeals(
-  today: string,
-  dayN: number,
-  totalDaysInMonth: number
-): { remainingMeals: number; remainingDays: number };
-
-declare function getSpentByCategory(
-  records: MealRecord[],
-  month: string
-): {
-  total: number;
-  byCategory: Record<
-    string,
-    { amount: number; ratio: number }
-  >;
-};
-
-declare function getRecent7DaysStats(
-  records: MealRecord[],
-  today: string
-): { total: number; average: number; count: number };
