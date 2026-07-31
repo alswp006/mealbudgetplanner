@@ -90,6 +90,7 @@ export interface ApiError {
     Amount.tsx
     BottomCTA.tsx
     Card.tsx
+    CheckinCard.tsx
     CountUp.tsx
     FloatingTabBar.tsx
     MiniBar.tsx
@@ -109,7 +110,12 @@ export interface ApiError {
     utils.ts
   main.tsx
   pages/
+    Analysis.tsx
+    Budget.tsx
     Home.tsx
+    Record.tsx
+    Records.tsx
+    Simulate.tsx
     __TdsGallery.tsx
   store/
     index.ts
@@ -130,6 +136,7 @@ export interface ApiError {
 - Amount.tsx: Amount
 - BottomCTA.tsx: SubmitFooter, ButtonStack
 - Card.tsx: Card
+- CheckinCard.tsx: CheckinCard
 - CountUp.tsx: CountUp
 - FloatingTabBar.tsx: FloatingTabBar
 - MiniBar.tsx: MiniBar
@@ -144,6 +151,11 @@ export interface ApiError {
 ### Module Dependencies (import graph)
   lib/calc.ts → imports: lib/types
   lib/storage.ts → imports: lib/types
+  pages/Analysis.tsx → imports: lib/store, lib/types
+  pages/Budget.tsx → imports: lib/store
+  pages/Record.tsx → imports: lib/store, lib/types
+  pages/Records.tsx → imports: lib/store, lib/types
+  pages/Simulate.tsx → imports: lib/store, lib/calc, lib/storage, lib/types
 CRITICAL: Before creating any new function, type, or component, check the list above. If something similar exists, import and use it.
 
 ## Already Implemented (do NOT duplicate or overwrite)
@@ -151,6 +163,6 @@ CRITICAL: Before creating any new function, type, or component, check the list a
 - 0002: localStorage CRUD 헬퍼 (files: src/lib/storage.ts)
 - 0003: 파생계산 유틸 & 데이터 정리 (files: src/lib/calc.ts)
 - 0004: 앱 상태 스토어 & 초기화 (files: src/lib/store.tsx)
-- heal-1-01: 데이터 레이어 공개 API 계약 정합화 및 배럴 export 고정 (files: src/store/index.ts, src/lib/storage.ts, src/lib/derive.ts, src/types/index.ts)
 - 0013: 라우팅 & FloatingTabBar 배선 + Provider (files: src/App.tsx)
 - 0015: 라우팅 와이어링 + Provider 연결 + 통합 폴리시 (files: src/App.tsx)
+- heal-1-01: 데이터 레이어 공개 API 계약 정합화 및 배럴 export 고정 (files: src/store/index.ts, src/lib/storage.ts, src/lib/derive.ts, src/types/index.ts)
