@@ -140,6 +140,15 @@ export function mockTds() {
     BottomCTA: ({ children }: any) =>
       React.createElement("div", { "data-slot": "bottom-cta" }, children),
 
+    FixedBottomCTA: Object.assign(
+      ({ children, onClick, disabled, ...props }: any) =>
+        React.createElement("button", { onClick, disabled, ...props }, children),
+      {
+        Double: ({ children }: any) =>
+          React.createElement("div", { "data-slot": "fixed-bottom-cta-double" }, children),
+      },
+    ),
+
     BottomSheet: Object.assign(
       ({ children, open }: any) =>
         open ? React.createElement("div", { role: "dialog" }, children) : null,
@@ -296,7 +305,10 @@ export function mockTossRewardAd() {
 }
 
 // ── react-router-dom ──
-// Preserve actual router + override useNavigate for assertion.
+// Preserve the actual router (MemoryRouter/Routes/Route/useLocation) and wrap
+// useNavigate so tests can BOTH assert navigate() calls (mockNavigate spy) AND
+// observe the resulting route render (the real navigation still runs). Using a
+// no-op spy here would make button/tab navigation untestable end-to-end.
 export function mockRouter() {
   vi.mock("react-router-dom", async () => {
     const actual = await vi.importActual<typeof import("react-router-dom")>(
@@ -304,8 +316,13 @@ export function mockRouter() {
     );
     return {
       ...actual,
-      useNavigate: () => mockNavigate,
-      useLocation: () => mockLocation,
+      useNavigate: () => {
+        const realNavigate = actual.useNavigate();
+        return ((...args: Parameters<typeof realNavigate>) => {
+          (mockNavigate as (...a: unknown[]) => void)(...args);
+          return (realNavigate as (...a: unknown[]) => void)(...args);
+        }) as typeof realNavigate;
+      },
     };
   });
 }
