@@ -116,7 +116,7 @@ export interface ApiError {
   vite-env.d.ts
 
 ### Exports (src/lib/)
-- storage.ts: export function getItem<T>(key: string): T | null; export function setItem<T>(key: string, value: T): void; export function removeItem(key: string): void
+- storage.ts: export function getItem<T>(key: string): T | null; export function setItem<T>(key: string, value: T): void; export function removeItem(key: string): void; export interface MealRecord; export interface Budget; export interface CheckinLog; export interface AppFlags; export function getBudget(month: string): Budget | null
 - types.ts: export interface Budget; export type MealSlot = "breakfast" | "lunch" | "dinner" | "snack"; export type MealCategory = "main" | "side" | "drink" | "snack"; export interface MealRecord; export interface CheckinLog; export interface AppFlags; export type SaveResult =; export interface RouteState
 - utils.ts: export function cn(...classes: (string | boolean | undefined | null)[]): string; export function formatNumber(n: number): string; export function formatCurrency(n: number, currency = 'KRW'): string
 
@@ -139,3 +139,4 @@ CRITICAL: Before creating any new function, type, or component, check the list a
 
 ## Already Implemented (do NOT duplicate or overwrite)
 - 0001: 엔티티 타입 & RouteState 정의 (files: src/lib/types.ts)
+- 0002: localStorage CRUD 헬퍼 (files: src/lib/storage.ts)
