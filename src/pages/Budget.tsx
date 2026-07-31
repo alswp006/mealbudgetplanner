@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { ScreenScaffold } from '../components/ScreenScaffold';
 import { SubmitFooter } from '../components/BottomCTA';
 import { Amount } from '../components/Amount';
-import { useAppData } from '@/lib/store';
+import { useAppData } from '@/data';
 
 const MAX_BUDGET = 10_000_000;
 

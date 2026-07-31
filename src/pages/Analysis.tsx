@@ -6,8 +6,8 @@ import { Card } from '../components/Card';
 import { Amount } from '../components/Amount';
 import { MiniBar } from '../components/MiniBar';
 import { TossRewardAd } from '../components/TossRewardAd';
-import { useAppData } from '@/lib/store';
-import type { MealCategory } from '@/lib/types';
+import { useAppData } from '@/data';
+import type { MealCategory } from '@/data';
 
 const CATEGORY_LABEL: Record<MealCategory, string> = {
   delivery: '배달',

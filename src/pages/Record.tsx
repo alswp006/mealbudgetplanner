@@ -3,8 +3,8 @@ import { Top, TextField, Button, Toast, Paragraph, Spacing } from '@toss/tds-mob
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ScreenScaffold } from '../components/ScreenScaffold';
 import { SubmitFooter } from '../components/BottomCTA';
-import { useAppData } from '@/lib/store';
-import type { MealSlot, MealCategory } from '@/lib/types';
+import { useAppData } from '@/data';
+import type { MealSlot, MealCategory } from '@/data';
 
 const SLOTS: { key: MealSlot; label: string }[] = [
   { key: 'breakfast', label: '아침' },

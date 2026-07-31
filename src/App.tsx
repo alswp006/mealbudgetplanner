@@ -1,6 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
-import { AppDataProvider } from '@/lib/store';
+import { AppDataProvider } from '@/data';
 import { FloatingTabBar } from './components/FloatingTabBar';
 import Home from './pages/Home';
 import Budget from './pages/Budget';

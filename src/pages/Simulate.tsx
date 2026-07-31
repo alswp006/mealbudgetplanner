@@ -7,10 +7,8 @@ import { SummaryHero } from '../components/SummaryHero';
 import { CountUp } from '../components/CountUp';
 import { TossRewardAd } from '../components/TossRewardAd';
 import { AdSlot } from '../components/AdSlot';
-import { useAppData } from '@/lib/store';
-import { getSpentByCategory } from '@/lib/calc';
-import { getFlags, setFlags } from '@/lib/storage';
-import type { SimulateRequest, SimulateResponse } from '@/lib/types';
+import { useAppData, getSpentByCategory, getFlags, setFlags } from '@/data';
+import type { SimulateRequest, SimulateResponse } from '@/data';
 
 const MIN_RECORDS = 5;
 const DAY_MS = 24 * 60 * 60 * 1000;

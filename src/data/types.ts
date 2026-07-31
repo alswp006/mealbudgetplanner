@@ -6,4 +6,6 @@ export type {
   MealSlot,
   MealCategory,
   SaveResult,
+  SimulateRequest,
+  SimulateResponse,
 } from "@/lib/types";

@@ -3,8 +3,7 @@ import { Button, Toast, Paragraph, Spacing, Badge } from '@toss/tds-mobile';
 import { TossAds } from '@apps-in-toss/web-framework';
 import { Card } from './Card';
 import { AdSlot } from './AdSlot';
-import { useAppData } from '@/lib/store';
-import { calcPaceBadge } from '@/lib/calc';
+import { useAppData, calcPaceBadge } from '@/data';
 
 // AdSlot과 동일한 가드 패턴 — WebView 밖에서는 isSupported가 예외를 던진다.
 function isBannerAdSupported(): boolean {

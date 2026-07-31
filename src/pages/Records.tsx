@@ -12,8 +12,8 @@ import { ScreenScaffold } from '../components/ScreenScaffold';
 import { EmptyState, LoadingState } from '../components/StateView';
 import { Amount } from '../components/Amount';
 import { Card } from '../components/Card';
-import { useAppData } from '@/lib/store';
-import type { MealCategory, MealRecord } from '@/lib/types';
+import { useAppData } from '@/data';
+import type { MealCategory, MealRecord } from '@/data';
 
 const CATEGORY_LABEL: Record<MealCategory, string> = {
   delivery: '배달',
