@@ -73,7 +73,7 @@ describe("앱 상태 스토어 & 초기화 (packet-0004)", () => {
         result.current.actions.recordMeal({
           date: "2026-08-16",
           slot: "lunch",
-          category: "main",
+          category: "home_cooked",
           amount: 12000,
           memo: "점심 도시락",
         });
@@ -83,7 +83,7 @@ describe("앱 상태 스토어 & 초기화 (packet-0004)", () => {
       expect(result.current.meals[0]).toMatchObject({
         date: "2026-08-16",
         slot: "lunch",
-        category: "main",
+        category: "home_cooked",
         amount: 12000,
         memo: "점심 도시락",
       });
@@ -98,7 +98,7 @@ describe("앱 상태 스토어 & 초기화 (packet-0004)", () => {
         result.current.actions.recordMeal({
           date: "2026-08-16",
           slot: "dinner",
-          category: "side",
+          category: "dining_out",
           amount: 6000,
           memo: "",
         });
@@ -142,7 +142,7 @@ describe("앱 상태 스토어 & 초기화 (packet-0004)", () => {
         result.current.actions.recordMeal({
           date: "2026-08-16",
           slot: "lunch",
-          category: "main",
+          category: "home_cooked",
           amount: 15000,
           memo: "",
         });
@@ -162,7 +162,7 @@ describe("앱 상태 스토어 & 초기화 (packet-0004)", () => {
         result.current.actions.recordMeal({
           date: "2026-08-16",
           slot: "lunch",
-          category: "side",
+          category: "dining_out",
           amount: 8000,
           memo: "",
         });

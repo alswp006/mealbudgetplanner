@@ -50,7 +50,7 @@ describe("AC-1[P0]: Budget/MealRecord/MealSlot/MealCategory/CheckinLog/AppFlags 
       id: "meal-001",
       date: "2026-08-01",
       slot: "lunch",
-      category: "main",
+      category: "delivery",
       amount: 15000,
       memo: "Restaurant lunch",
       createdAt: "2026-08-01T12:30:00Z",
@@ -59,7 +59,7 @@ describe("AC-1[P0]: Budget/MealRecord/MealSlot/MealCategory/CheckinLog/AppFlags 
     expect(record.id).toBe("meal-001");
     expect(record.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     expect(record.slot).toBe("lunch");
-    expect(record.category).toBe("main");
+    expect(record.category).toBe("delivery");
     expect(record.amount).toBe(15000);
     expect(record.memo).toBe("Restaurant lunch");
   });
@@ -69,7 +69,7 @@ describe("AC-1[P0]: Budget/MealRecord/MealSlot/MealCategory/CheckinLog/AppFlags 
       id: "meal-001",
       date: "2026-08-01",
       slot: "breakfast",
-      category: "main",
+      category: "home_cooked",
       amount: 8000,
       memo: "Cereal",
       createdAt: "2026-08-01T08:00:00Z",
@@ -79,7 +79,7 @@ describe("AC-1[P0]: Budget/MealRecord/MealSlot/MealCategory/CheckinLog/AppFlags 
       id: "meal-002",
       date: "2026-08-01",
       slot: "dinner",
-      category: "main",
+      category: "dining_out",
       amount: 25000,
       memo: "Steak dinner",
       createdAt: "2026-08-01T19:00:00Z",
@@ -91,32 +91,28 @@ describe("AC-1[P0]: Budget/MealRecord/MealSlot/MealCategory/CheckinLog/AppFlags 
     expect(dinner.amount).toBe(25000);
   });
 
-  it("should export MealSlot type as union of breakfast | lunch | dinner | snack", () => {
+  it("should export MealSlot type as union of breakfast | lunch | dinner", () => {
     const breakfast: MealSlot = "breakfast";
     const lunch: MealSlot = "lunch";
     const dinner: MealSlot = "dinner";
-    const snack: MealSlot = "snack";
 
-    const slots: MealSlot[] = [breakfast, lunch, dinner, snack];
-    expect(slots).toHaveLength(4);
+    const slots: MealSlot[] = [breakfast, lunch, dinner];
+    expect(slots).toHaveLength(3);
     expect(slots).toContain("breakfast");
     expect(slots).toContain("lunch");
     expect(slots).toContain("dinner");
-    expect(slots).toContain("snack");
   });
 
-  it("should export MealCategory type as union of main | side | drink | snack", () => {
-    const main: MealCategory = "main";
-    const side: MealCategory = "side";
-    const drink: MealCategory = "drink";
-    const snack: MealCategory = "snack";
+  it("should export MealCategory type as union of delivery | dining_out | home_cooked", () => {
+    const delivery: MealCategory = "delivery";
+    const diningOut: MealCategory = "dining_out";
+    const homeCooked: MealCategory = "home_cooked";
 
-    const categories: MealCategory[] = [main, side, drink, snack];
-    expect(categories).toHaveLength(4);
-    expect(categories).toContain("main");
-    expect(categories).toContain("side");
-    expect(categories).toContain("drink");
-    expect(categories).toContain("snack");
+    const categories: MealCategory[] = [delivery, diningOut, homeCooked];
+    expect(categories).toHaveLength(3);
+    expect(categories).toContain("delivery");
+    expect(categories).toContain("dining_out");
+    expect(categories).toContain("home_cooked");
   });
 
   it("should export CheckinLog type with date, paceBadge, grantedAt fields", () => {
@@ -334,7 +330,7 @@ describe("AC-4[P0]: Types use concrete types without 'any' and pass tsc --noEmit
       id: "meal-001",
       date: "2026-08-01",
       slot: "lunch",
-      category: "main",
+      category: "delivery",
       amount: 15000,
       memo: "Lunch",
       createdAt: "2026-08-01T12:30:00Z",

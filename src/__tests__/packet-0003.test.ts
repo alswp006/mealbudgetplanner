@@ -26,7 +26,7 @@ describe("파생계산 유틸 & 데이터 정리 (packet-0003)", () => {
           id: "1",
           date: "2026-08-01",
           slot: "breakfast",
-          category: "main",
+          category: "home_cooked",
           amount: 12000,
           memo: "",
           createdAt: "2026-08-01T09:00:00Z",
@@ -35,7 +35,7 @@ describe("파생계산 유틸 & 데이터 정리 (packet-0003)", () => {
           id: "2",
           date: "2026-08-15",
           slot: "lunch",
-          category: "main",
+          category: "home_cooked",
           amount: 8000,
           memo: "",
           createdAt: "2026-08-15T12:00:00Z",
@@ -44,7 +44,7 @@ describe("파생계산 유틸 & 데이터 정리 (packet-0003)", () => {
           id: "3",
           date: "2026-08-28",
           slot: "dinner",
-          category: "main",
+          category: "home_cooked",
           amount: 5000,
           memo: "",
           createdAt: "2026-08-28T18:00:00Z",
@@ -63,7 +63,7 @@ describe("파생계산 유틸 & 데이터 정리 (packet-0003)", () => {
           id: "1",
           date: "2026-07-15",
           slot: "lunch",
-          category: "main",
+          category: "home_cooked",
           amount: 8000,
           memo: "",
           createdAt: "2026-07-15T12:00:00Z",
@@ -241,7 +241,7 @@ describe("파생계산 유틸 & 데이터 정리 (packet-0003)", () => {
           id: "old",
           date: "2025-06-01",
           slot: "breakfast",
-          category: "main",
+          category: "home_cooked",
           amount: 5000,
           memo: "",
           createdAt: "2025-06-01T09:00:00Z",
@@ -251,7 +251,7 @@ describe("파생계산 유틸 & 데이터 정리 (packet-0003)", () => {
           id: "recent",
           date: "2026-08-01",
           slot: "lunch",
-          category: "main",
+          category: "home_cooked",
           amount: 8000,
           memo: "",
           createdAt: "2026-08-01T12:00:00Z",
@@ -273,7 +273,7 @@ describe("파생계산 유틸 & 데이터 정리 (packet-0003)", () => {
           id: "boundary",
           date: "2025-07-01",
           slot: "breakfast",
-          category: "main",
+          category: "home_cooked",
           amount: 5000,
           memo: "",
           createdAt: "2025-07-01T09:00:00Z",
@@ -299,7 +299,7 @@ describe("파생계산 유틸 & 데이터 정리 (packet-0003)", () => {
           id: "1",
           date: "2026-01-15",
           slot: "breakfast",
-          category: "main",
+          category: "home_cooked",
           amount: 5000,
           memo: "",
           createdAt: "2026-01-15T09:00:00Z",
@@ -308,7 +308,7 @@ describe("파생계산 유틸 & 데이터 정리 (packet-0003)", () => {
           id: "2",
           date: "2026-07-30",
           slot: "lunch",
-          category: "main",
+          category: "home_cooked",
           amount: 8000,
           memo: "",
           createdAt: "2026-07-30T12:00:00Z",
@@ -357,7 +357,7 @@ describe("파생계산 유틸 & 데이터 정리 (packet-0003)", () => {
           id: "1",
           date: "2026-08-01",
           slot: "breakfast",
-          category: "main",
+          category: "home_cooked",
           amount: 10000,
           memo: "",
           createdAt: "2026-08-01T09:00:00Z",
@@ -366,7 +366,7 @@ describe("파생계산 유틸 & 데이터 정리 (packet-0003)", () => {
           id: "2",
           date: "2026-08-02",
           slot: "lunch",
-          category: "main",
+          category: "home_cooked",
           amount: 10000,
           memo: "",
           createdAt: "2026-08-02T12:00:00Z",
@@ -375,7 +375,7 @@ describe("파생계산 유틸 & 데이터 정리 (packet-0003)", () => {
           id: "3",
           date: "2026-08-03",
           slot: "dinner",
-          category: "side",
+          category: "dining_out",
           amount: 5000,
           memo: "",
           createdAt: "2026-08-03T18:00:00Z",
@@ -383,8 +383,8 @@ describe("파생계산 유틸 & 데이터 정리 (packet-0003)", () => {
         {
           id: "4",
           date: "2026-08-04",
-          slot: "snack",
-          category: "drink",
+          slot: "dinner",
+          category: "delivery",
           amount: 5000,
           memo: "",
           createdAt: "2026-08-04T20:00:00Z",
@@ -396,21 +396,20 @@ describe("파생계산 유틸 & 데이터 정리 (packet-0003)", () => {
       expect(result).toMatchObject({
         total: 30000,
         byCategory: expect.objectContaining({
-          main: expect.any(Object),
-          side: expect.any(Object),
-          drink: expect.any(Object),
-          snack: expect.any(Object),
+          home_cooked: expect.any(Object),
+          dining_out: expect.any(Object),
+          delivery: expect.any(Object),
         }),
       });
 
-      // Verify main category
-      expect(result.byCategory.main).toMatchObject({
+      // Verify home_cooked category
+      expect(result.byCategory.home_cooked).toMatchObject({
         amount: 20000,
         ratio: expect.closeTo(20000 / 30000),
       });
 
-      // Verify side category
-      expect(result.byCategory.side).toMatchObject({
+      // Verify dining_out category
+      expect(result.byCategory.dining_out).toMatchObject({
         amount: 5000,
         ratio: expect.closeTo(5000 / 30000),
       });
@@ -422,7 +421,7 @@ describe("파생계산 유틸 & 데이터 정리 (packet-0003)", () => {
           id: "1",
           date: "2026-08-01",
           slot: "breakfast",
-          category: "main",
+          category: "home_cooked",
           amount: 10000,
           memo: "",
           createdAt: "2026-08-01T09:00:00Z",
@@ -431,10 +430,9 @@ describe("파생계산 유틸 & 데이터 정리 (packet-0003)", () => {
 
       const result = getSpentByCategory(records, "2026-08");
 
-      expect(result.byCategory.main.amount).toBe(10000);
-      expect(result.byCategory.side.amount).toBe(0);
-      expect(result.byCategory.drink.amount).toBe(0);
-      expect(result.byCategory.snack.amount).toBe(0);
+      expect(result.byCategory.home_cooked.amount).toBe(10000);
+      expect(result.byCategory.dining_out.amount).toBe(0);
+      expect(result.byCategory.delivery.amount).toBe(0);
     });
   });
 
@@ -446,7 +444,7 @@ describe("파생계산 유틸 & 데이터 정리 (packet-0003)", () => {
           id: "1",
           date: "2026-08-15",
           slot: "breakfast",
-          category: "main",
+          category: "home_cooked",
           amount: 5000,
           memo: "",
           createdAt: "2026-08-15T09:00:00Z",
@@ -455,7 +453,7 @@ describe("파생계산 유틸 & 데이터 정리 (packet-0003)", () => {
           id: "2",
           date: "2026-08-15",
           slot: "lunch",
-          category: "main",
+          category: "home_cooked",
           amount: 8000,
           memo: "",
           createdAt: "2026-08-15T12:00:00Z",
@@ -464,7 +462,7 @@ describe("파생계산 유틸 & 데이터 정리 (packet-0003)", () => {
           id: "3",
           date: "2026-08-14",
           slot: "breakfast",
-          category: "main",
+          category: "home_cooked",
           amount: 6000,
           memo: "",
           createdAt: "2026-08-14T09:00:00Z",
@@ -492,7 +490,7 @@ describe("파생계산 유틸 & 데이터 정리 (packet-0003)", () => {
           id: "old",
           date: "2026-08-07",
           slot: "breakfast",
-          category: "main",
+          category: "home_cooked",
           amount: 10000,
           memo: "",
           createdAt: "2026-08-07T09:00:00Z",
@@ -502,7 +500,7 @@ describe("파생계산 유틸 & 데이터 정리 (packet-0003)", () => {
           id: "boundary",
           date: "2026-08-08",
           slot: "lunch",
-          category: "main",
+          category: "home_cooked",
           amount: 8000,
           memo: "",
           createdAt: "2026-08-08T12:00:00Z",
@@ -512,7 +510,7 @@ describe("파생계산 유틸 & 데이터 정리 (packet-0003)", () => {
           id: "today",
           date: "2026-08-15",
           slot: "dinner",
-          category: "main",
+          category: "home_cooked",
           amount: 12000,
           memo: "",
           createdAt: "2026-08-15T18:00:00Z",

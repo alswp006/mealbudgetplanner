@@ -17,9 +17,9 @@ export interface Budget {
   updatedAt: DateTimeString;
 }
 
-export type MealSlot = "breakfast" | "lunch" | "dinner" | "snack";
+export type MealSlot = "breakfast" | "lunch" | "dinner";
 
-export type MealCategory = "main" | "side" | "drink" | "snack";
+export type MealCategory = "delivery" | "dining_out" | "home_cooked";
 
 export interface MealRecord {
   id: string;

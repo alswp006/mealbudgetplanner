@@ -1,6 +1,6 @@
 import type { MealRecord, MealCategory } from "@/lib/types";
 
-const CATEGORIES: MealCategory[] = ["main", "side", "drink", "snack"];
+const CATEGORIES: MealCategory[] = ["delivery", "dining_out", "home_cooked"];
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 function parseDateUTC(dateStr: string): number {
