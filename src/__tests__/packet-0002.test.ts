@@ -10,9 +10,6 @@ import {
   getFlags,
   setFlags,
   type MealRecord,
-  type Budget,
-  type CheckinLog,
-  type AppFlags,
 } from "@/lib/storage";
 
 describe("localStorage CRUD 헬퍼 (packet-0002)", () => {
@@ -27,7 +24,13 @@ describe("localStorage CRUD 헬퍼 (packet-0002)", () => {
 
   describe("AC-1: addMeal와 getMealsByMonth", () => {
     it("should add meal with UUID id and retrieve by month", () => {
-      const mealData = { name: "아침식사", amount: 5000, date: "2026-08-01" };
+      const mealData = {
+        date: "2026-08-01",
+        slot: "breakfast" as const,
+        category: "home_cooked" as const,
+        amount: 5000,
+        memo: "아침식사",
+      };
       const addResult = addMeal(mealData);
 
       expect(addResult.ok).toBe(true);
@@ -41,15 +44,13 @@ describe("localStorage CRUD 헬퍼 (packet-0002)", () => {
       expect(meals).toHaveLength(1);
       expect(meals[0]).toMatchObject({
         id: addResult.id,
-        name: "아침식사",
-        amount: 5000,
-        date: "2026-08-01",
+        ...mealData,
       });
     });
 
     it("should return multiple meals when added in same month", () => {
-      const meal1 = addMeal({ name: "아침", amount: 5000, date: "2026-08-01" });
-      const meal2 = addMeal({ name: "점심", amount: 8000, date: "2026-08-15" });
+      const meal1 = addMeal({ date: "2026-08-01", slot: "breakfast", category: "home_cooked", amount: 5000, memo: "아침" });
+      const meal2 = addMeal({ date: "2026-08-15", slot: "lunch", category: "delivery", amount: 8000, memo: "점심" });
 
       const meals = getMealsByMonth("2026-08");
       expect(meals).toHaveLength(2);
@@ -57,7 +58,7 @@ describe("localStorage CRUD 헬퍼 (packet-0002)", () => {
     });
 
     it("should return empty array for month with no meals", () => {
-      addMeal({ name: "아침", amount: 5000, date: "2026-08-01" });
+      addMeal({ date: "2026-08-01", slot: "breakfast", category: "home_cooked", amount: 5000, memo: "아침" });
 
       const meals = getMealsByMonth("2026-09");
       expect(meals).toEqual([]);
@@ -92,16 +93,18 @@ describe("localStorage CRUD 헬퍼 (packet-0002)", () => {
       const time1 = 1690000000000;
       vi.setSystemTime(time1);
 
-      const budget1 = setBudget("2026-08", { amount: 100000 });
-      expect(budget1.createdAt).toBe(time1);
-      expect(budget1.updatedAt).toBe(time1);
+      const budget1 = setBudget("2026-08", 100000);
+      expect(budget1.createdAt).toBe(new Date(time1).toISOString());
+      expect(budget1.updatedAt).toBe(new Date(time1).toISOString());
 
       vi.setSystemTime(time1 + 5000);
-      const budget2 = setBudget("2026-08", { amount: 120000 });
+      const budget2 = setBudget("2026-08", 120000);
 
-      expect(budget2.createdAt).toBe(time1);
-      expect(budget2.updatedAt).toBe(time1 + 5000);
-      expect(budget2.updatedAt).toBeGreaterThan(budget2.createdAt);
+      expect(budget2.createdAt).toBe(new Date(time1).toISOString());
+      expect(budget2.updatedAt).toBe(new Date(time1 + 5000).toISOString());
+      expect(new Date(budget2.updatedAt).getTime()).toBeGreaterThan(
+        new Date(budget2.createdAt).getTime()
+      );
     });
 
     it("should update updatedAt but not createdAt on multiple updates", () => {
@@ -109,19 +112,19 @@ describe("localStorage CRUD 헬퍼 (packet-0002)", () => {
       const time1 = 1690000000000;
       vi.setSystemTime(time1);
 
-      setBudget("2026-08", { amount: 100000 });
+      setBudget("2026-08", 100000);
       const createdAt = JSON.parse(
         localStorage.getItem("mbp.budgets") || "{}"
       )["2026-08"].createdAt;
 
       vi.setSystemTime(time1 + 10000);
-      setBudget("2026-08", { amount: 120000 });
+      setBudget("2026-08", 120000);
 
       vi.setSystemTime(time1 + 20000);
-      const budget3 = setBudget("2026-08", { amount: 130000 });
+      const budget3 = setBudget("2026-08", 130000);
 
       expect(budget3.createdAt).toBe(createdAt);
-      expect(budget3.updatedAt).toBe(time1 + 20000);
+      expect(budget3.updatedAt).toBe(new Date(time1 + 20000).toISOString());
     });
   });
 
@@ -134,7 +137,7 @@ describe("localStorage CRUD 헬퍼 (packet-0002)", () => {
         throw err;
       });
 
-      const result = addMeal({ name: "test", amount: 5000, date: "2026-08-01" });
+      const result = addMeal({ date: "2026-08-01", slot: "lunch", category: "delivery", amount: 5000, memo: "" });
 
       expect(result).toEqual({ ok: false, reason: "quota" });
       expect(result.id).toBeUndefined();
@@ -151,7 +154,7 @@ describe("localStorage CRUD 헬퍼 (packet-0002)", () => {
       });
 
       expect(() => {
-        addMeal({ name: "test", amount: 5000, date: "2026-08-01" });
+        addMeal({ date: "2026-08-01", slot: "lunch", category: "delivery", amount: 5000, memo: "" });
       }).not.toThrow();
 
       setItemSpy.mockRestore();
@@ -165,7 +168,7 @@ describe("localStorage CRUD 헬퍼 (packet-0002)", () => {
     });
 
     it("should return null when specific month budget is missing", () => {
-      setBudget("2026-07", { amount: 100000 });
+      setBudget("2026-07", 100000);
       const result = getBudget("2026-08");
       expect(result).toBeNull();
     });
@@ -173,14 +176,14 @@ describe("localStorage CRUD 헬퍼 (packet-0002)", () => {
 
   describe("추가 기능: Checkins", () => {
     it("should store and retrieve checkin data", () => {
-      const checkinData = { completed: true, notes: "완료" };
-      setCheckin("2026-08-01", checkinData);
+      setCheckin("2026-08-01", "ahead");
 
       const result = getCheckin("2026-08-01");
       expect(result).toMatchObject({
-        completed: true,
-        notes: "완료",
+        date: "2026-08-01",
+        paceBadge: "ahead",
       });
+      expect(typeof result?.grantedAt).toBe("string");
     });
 
     it("should return null for missing checkin", () => {
@@ -191,33 +194,32 @@ describe("localStorage CRUD 헬퍼 (packet-0002)", () => {
 
   describe("추가 기능: Flags", () => {
     it("should store and retrieve app flags", () => {
-      const flags = { aiNoticeShown: true, theme: "dark" };
-      setFlags(flags);
+      setFlags({ aiNoticeAcknowledged: true });
 
       const result = getFlags();
-      expect(result).toEqual(flags);
+      expect(result.aiNoticeAcknowledged).toBe(true);
     });
 
-    it("should return empty object when no flags exist", () => {
+    it("should return default flags when none exist", () => {
       const result = getFlags();
-      expect(result).toEqual({});
+      expect(result).toEqual({ aiNoticeAcknowledged: false });
     });
 
     it("should merge flags on update", () => {
-      setFlags({ aiNoticeShown: true });
-      setFlags({ theme: "dark" });
+      setFlags({ aiNoticeAcknowledged: true });
+      setFlags({ overBudgetAlertedMonth: "2026-08" });
 
       const result = getFlags();
       expect(result).toMatchObject({
-        aiNoticeShown: true,
-        theme: "dark",
+        aiNoticeAcknowledged: true,
+        overBudgetAlertedMonth: "2026-08",
       });
     });
   });
 
   describe("추가 기능: deleteMeal", () => {
     it("should remove meal by id", () => {
-      const meal = addMeal({ name: "test", amount: 5000, date: "2026-08-01" });
+      const meal = addMeal({ date: "2026-08-01", slot: "lunch", category: "delivery", amount: 5000, memo: "" });
       expect(meal.ok).toBe(true);
       expect(meal.id).toBeDefined();
 
@@ -239,29 +241,29 @@ describe("localStorage CRUD 헬퍼 (packet-0002)", () => {
 
   describe("통합: Multiple operations", () => {
     it("should handle mixed storage operations", () => {
-      setBudget("2026-08", { amount: 100000 });
-      addMeal({ name: "아침", amount: 5000, date: "2026-08-01" });
-      addMeal({ name: "점심", amount: 8000, date: "2026-08-02" });
-      setFlags({ theme: "dark" });
-      setCheckin("2026-08-01", { completed: true });
+      setBudget("2026-08", 100000);
+      addMeal({ date: "2026-08-01", slot: "breakfast", category: "home_cooked", amount: 5000, memo: "" });
+      addMeal({ date: "2026-08-02", slot: "lunch", category: "delivery", amount: 8000, memo: "" });
+      setFlags({ aiNoticeAcknowledged: true });
+      setCheckin("2026-08-01", "ontrack");
 
       const budget = getBudget("2026-08");
-      expect(budget?.amount).toBe(100000);
+      expect(budget?.totalBudget).toBe(100000);
 
       const meals = getMealsByMonth("2026-08");
       expect(meals).toHaveLength(2);
 
       const flags = getFlags();
-      expect(flags.theme).toBe("dark");
+      expect(flags.aiNoticeAcknowledged).toBe(true);
 
       const checkin = getCheckin("2026-08-01");
-      expect(checkin?.completed).toBe(true);
+      expect(checkin?.paceBadge).toBe("ontrack");
     });
 
     it("should maintain data isolation between keys", () => {
-      addMeal({ name: "2026-08", amount: 5000, date: "2026-08-01" });
-      setBudget("2026-08", { amount: 100000 });
-      setFlags({ test: true });
+      addMeal({ date: "2026-08-01", slot: "breakfast", category: "home_cooked", amount: 5000, memo: "" });
+      setBudget("2026-08", 100000);
+      setFlags({ aiNoticeAcknowledged: true });
 
       localStorage.clear();
 
@@ -271,7 +273,7 @@ describe("localStorage CRUD 헬퍼 (packet-0002)", () => {
 
       expect(meals).toEqual([]);
       expect(budget).toBeNull();
-      expect(flags).toEqual({});
+      expect(flags).toEqual({ aiNoticeAcknowledged: false });
     });
   });
 });

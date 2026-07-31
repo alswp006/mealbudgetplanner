@@ -1,3 +1,15 @@
+import type {
+  Budget,
+  MealRecord,
+  CheckinLog,
+  AppFlags,
+  MealSlot,
+  MealCategory,
+  SaveResult,
+} from "@/lib/types";
+
+export type { Budget, MealRecord, CheckinLog, AppFlags };
+
 export function getItem<T>(key: string): T | null {
   try {
     const raw = localStorage.getItem(key);
@@ -13,29 +25,6 @@ export function setItem<T>(key: string, value: T): void {
 
 export function removeItem(key: string): void {
   localStorage.removeItem(key);
-}
-
-// Packet 0002: localStorage CRUD 헬퍼
-
-export interface MealRecord {
-  id: string;
-  name: string;
-  amount: number;
-  date: string;
-}
-
-export interface Budget {
-  amount: number;
-  createdAt: number;
-  updatedAt: number;
-}
-
-export interface CheckinLog {
-  [key: string]: unknown;
-}
-
-export interface AppFlags {
-  [key: string]: unknown;
 }
 
 const STORAGE_KEYS = {
@@ -55,7 +44,7 @@ function safeGet<T>(key: string, fallback: T): T {
   }
 }
 
-function safeSet(key: string, value: unknown): { ok: true } | { ok: false; reason: "quota" } {
+function safeSet(key: string, value: unknown): SaveResult {
   try {
     localStorage.setItem(key, JSON.stringify(value));
     return { ok: true };
@@ -73,12 +62,13 @@ export function getBudget(month: string): Budget | null {
   return budgets[month] ?? null;
 }
 
-export function setBudget(month: string, data: { amount: number }): Budget {
+export function setBudget(month: string, totalBudget: number): Budget {
   const budgets = safeGet<Record<string, Budget>>(STORAGE_KEYS.budgets, {});
-  const now = Date.now();
+  const now = new Date().toISOString();
   const existing = budgets[month];
   const budget: Budget = {
-    amount: data.amount,
+    month,
+    totalBudget,
     createdAt: existing ? existing.createdAt : now,
     updatedAt: now,
   };
@@ -88,13 +78,21 @@ export function setBudget(month: string, data: { amount: number }): Budget {
 }
 
 // Meal operations (array storage at 'mbp.meals')
-export function addMeal(data: {
-  name: string;
-  amount: number;
+export interface AddMealInput {
   date: string;
-}): { ok: boolean; id?: string; reason?: string } {
+  slot: MealSlot;
+  category: MealCategory;
+  amount: number;
+  memo: string;
+}
+
+export function addMeal(input: AddMealInput): { ok: boolean; id?: string; reason?: string } {
   const meals = safeGet<MealRecord[]>(STORAGE_KEYS.meals, []);
-  const meal: MealRecord = { id: crypto.randomUUID(), ...data };
+  const meal: MealRecord = {
+    id: crypto.randomUUID(),
+    createdAt: new Date().toISOString(),
+    ...input,
+  };
   const result = safeSet(STORAGE_KEYS.meals, [...meals, meal]);
   if (!result.ok) {
     return { ok: false, reason: result.reason };
@@ -118,18 +116,20 @@ export function getCheckin(date: string): CheckinLog | null {
   return checkins[date] ?? null;
 }
 
-export function setCheckin(date: string, data: unknown): void {
+export function setCheckin(date: string, paceBadge: CheckinLog["paceBadge"]): CheckinLog {
   const checkins = safeGet<Record<string, CheckinLog>>(STORAGE_KEYS.checkins, {});
-  checkins[date] = data as CheckinLog;
+  const log: CheckinLog = { date, paceBadge, grantedAt: new Date().toISOString() };
+  checkins[date] = log;
   safeSet(STORAGE_KEYS.checkins, checkins);
+  return log;
 }
 
 // Flags operations (single object at 'mbp.flags')
 export function getFlags(): AppFlags {
-  return safeGet<AppFlags>(STORAGE_KEYS.flags, {});
+  return safeGet<AppFlags>(STORAGE_KEYS.flags, { aiNoticeAcknowledged: false });
 }
 
-export function setFlags(data: AppFlags): void {
+export function setFlags(data: Partial<AppFlags>): void {
   const existing = getFlags();
   safeSet(STORAGE_KEYS.flags, { ...existing, ...data });
 }
