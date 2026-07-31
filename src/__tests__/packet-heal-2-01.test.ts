@@ -31,12 +31,12 @@ import type {
 // Dynamically import the barrel to allow tests to run even if not yet implemented
 let dataLayer: any;
 
-beforeEach(() => {
+beforeEach(async () => {
   localStorage.clear();
   vi.clearAllMocks();
   // This will fail initially (RED phase) until src/data/index.ts exists
   try {
-    dataLayer = require("@/data/index");
+    dataLayer = await import("@/data/index");
   } catch (e) {
     // Intentional: tests expect this to fail until implementation
     dataLayer = {};
@@ -326,8 +326,7 @@ describe("데이터 레이어 공개 API 계약 (AC-1 ~ AC-4)", () => {
       };
 
       // Mock localStorage.setItem to throw QuotaExceededError
-      const originalSetItem = localStorage.setItem;
-      vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
         const error = new Error("QuotaExceededError");
         error.name = "QuotaExceededError";
         throw error;
@@ -342,7 +341,7 @@ describe("데이터 레이어 공개 API 계약 (AC-1 ~ AC-4)", () => {
       expect(result.reason).toBe("quota");
 
       // Cleanup
-      localStorage.setItem = originalSetItem;
+      setItemSpy.mockRestore();
     });
   });
 
