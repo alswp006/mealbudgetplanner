@@ -46,10 +46,8 @@ export default function Home() {
         value={<Paragraph.Text typography="t2">한 달 식비 예산을 입력하면 끼니별 허용 금액과 소비 패턴 피드백을 매일 제공하는 식비 관리 앱</Paragraph.Text>}
         caption="로그인 없이 바로 쓸 수 있어요"
         action={
-          // 라벨은 앱의 핵심 행동 동사로 교체하라 — "연봉 계산하기"/"기록 남기기" 등.
-          // generic "시작하기"/"확인"은 카피 규칙 위반. onClick도 실제 첫 화면 경로로.
-          <Button variant="fill" display="block" onClick={() => navigate('/')}>
-            첫 결과 보기
+          <Button variant="fill" display="block" onClick={() => navigate('/record')}>
+            식사 기록
           </Button>
         }
         testId="home-hero"

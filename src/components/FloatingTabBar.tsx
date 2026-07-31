@@ -65,7 +65,7 @@ export function FloatingTabBar({ items }: { items: TabItem[] }) {
               justifyContent: "center",
               gap: 2,
               padding: "4px 0",
-              minHeight: 44,
+              minHeight: 48,
               border: "none",
               background: "none",
               cursor: "pointer",
