@@ -101,6 +101,12 @@ export interface ApiError {
     SummaryHero.tsx
     TossPurchase.tsx
     TossRewardAd.tsx
+  data/
+    derive.ts
+    index.ts
+    storage.ts
+    store.ts
+    types.ts
   hooks/
   lib/
     calc.ts
@@ -166,3 +172,4 @@ CRITICAL: Before creating any new function, type, or component, check the list a
 - 0013: 라우팅 & FloatingTabBar 배선 + Provider (files: src/App.tsx)
 - 0015: 라우팅 와이어링 + Provider 연결 + 통합 폴리시 (files: src/App.tsx)
 - heal-1-01: 데이터 레이어 공개 API 계약 정합화 및 배럴 export 고정 (files: src/store/index.ts, src/lib/storage.ts, src/lib/derive.ts, src/types/index.ts)
+- heal-2-01: 데이터 레이어 공개 API 계약을 SPEC AC 기준으로 고정하고 단일 배럴로 재노출 (files: src/data/index.ts, src/data/store.ts, src/data/storage.ts, src/data/derive.ts, src/data/types.ts)
