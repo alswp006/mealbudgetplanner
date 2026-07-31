@@ -173,3 +173,4 @@ CRITICAL: Before creating any new function, type, or component, check the list a
 - 0015: 라우팅 와이어링 + Provider 연결 + 통합 폴리시 (files: src/App.tsx)
 - heal-1-01: 데이터 레이어 공개 API 계약 정합화 및 배럴 export 고정 (files: src/store/index.ts, src/lib/storage.ts, src/lib/derive.ts, src/types/index.ts)
 - heal-2-01: 데이터 레이어 공개 API 계약을 SPEC AC 기준으로 고정하고 단일 배럴로 재노출 (files: src/data/index.ts, src/data/store.ts, src/data/storage.ts, src/data/derive.ts, src/data/types.ts)
+- heal-1-02: 라우팅·Provider 통합 배선으로 앱 조립 복구 (files: src/App.tsx, src/main.tsx, src/routes.tsx, src/components/FloatingTabBar)
