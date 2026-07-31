@@ -152,3 +152,4 @@ CRITICAL: Before creating any new function, type, or component, check the list a
 - 0003: 파생계산 유틸 & 데이터 정리 (files: src/lib/calc.ts)
 - 0004: 앱 상태 스토어 & 초기화 (files: src/lib/store.tsx)
 - heal-1-01: 데이터 레이어 공개 API 계약 정합화 및 배럴 export 고정 (files: src/store/index.ts, src/lib/storage.ts, src/lib/derive.ts, src/types/index.ts)
+- 0013: 라우팅 & FloatingTabBar 배선 + Provider (files: src/App.tsx)
