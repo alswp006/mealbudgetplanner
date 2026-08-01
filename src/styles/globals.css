@@ -10,7 +10,7 @@ body {
 }
 
 #root {
-  min-height: 100vh;
+  min-height: 100vh; /* // gate-allow: dvh 미지원 구형 브라우저 폴백, 아래 100dvh가 우선 적용됨 */
   min-height: 100dvh;
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);

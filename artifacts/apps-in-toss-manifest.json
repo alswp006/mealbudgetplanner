@@ -1,0 +1,23 @@
+{
+  "koreanName": "식비매니저",
+  "englishName": "MealBudgetPlanner",
+  "appName": "meal-budget-planner",
+  "ageRating": "전체",
+  "supportEmail": "support@aifactory.dev",
+  "category": {
+    "primary": "생활",
+    "secondary": "가계부"
+  },
+  "subtitle": "매일 남은 식비 예산을 한눈에",
+  "description": "앱을 실행하면 월 식비 예산을 설정합니다. 그러면 남은 날짜와 끼니 수를 계산해 '오늘 저녁까지 8,400원'처럼 끼니별 허용 금액을 보여줍니다. 식사를 하면 금액과 카테고리(배달/직접조리/외식)를 입력해 기록하고, 매일 체크인하면 월간 페이스 배지를 받습니다. 주간 분석에서는 배달 vs 외식 비율을 도넛차트로 확인하고, 리워드 광고를 보면 절약 시뮬레이션 결과를 공개받습니다.",
+  "searchKeywords": [
+    "식비 관리",
+    "식사비 예산",
+    "배달음식 관리",
+    "월 예산 설정",
+    "가계부",
+    "끼니별 예산",
+    "지출 추적",
+    "소비 패턴 분석"
+  ]
+}
