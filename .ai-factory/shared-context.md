@@ -134,6 +134,7 @@ export type RouteState = {
     SummaryHero.tsx
     TossPurchase.tsx
     TossRewardAd.tsx
+    TossRewardAdMini.tsx
   hooks/
   lib/
     calc.ts
@@ -148,6 +149,7 @@ export type RouteState = {
     BudgetPage.tsx
     Home.tsx
     RecordPage.tsx
+    SimulationPage.tsx
     StatsPage.tsx
     __TdsGallery.tsx
     __chiptest.tsx
@@ -185,6 +187,7 @@ export type RouteState = {
 - SummaryHero.tsx: SummaryHero
 - TossPurchase.tsx: TossPurchase
 - TossRewardAd.tsx: TossRewardAd
+- TossRewardAdMini.tsx: TossRewardAdMini
 
 ### Module Dependencies (import graph)
   lib/calc.ts → imports: lib/types
@@ -193,6 +196,7 @@ export type RouteState = {
   pages/BudgetPage.tsx → imports: components/ScreenScaffold, components/BottomCTA, lib/store
   pages/Home.tsx → imports: components/ScreenScaffold, components/Card, components/Amount, components/MiniBar, components/StateView, components/AllowanceHero, components/FloatingTabBar, lib/store
   pages/RecordPage.tsx → imports: components/ScreenScaffold, components/BottomCTA, lib/store, lib/types
+  pages/SimulationPage.tsx → imports: components/ScreenScaffold, components/Card, components/CountUp, components/StateView, components/TossRewardAd, lib/store, lib/calc
   pages/StatsPage.tsx → imports: components/ScreenScaffold, components/Card, components/DonutChart, components/MiniBar, components/Sparkline, components/StateView, components/FloatingTabBar, lib/store, lib/format, lib/types
 CRITICAL: Before creating any new function, type, or component, check the list above. If something similar exists, import and use it.
 

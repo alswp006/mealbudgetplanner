@@ -16,6 +16,12 @@ interface TossRewardAdProps {
   buttonText?: string;
   /** 광고 시청 완료 콜백 */
   onRewarded?: () => void;
+  /**
+   * 광고 시청(showFullScreenAd) 실패 콜백. 제공하면 실패 시 자동 언락 대신
+   * 잠금을 유지하고 이 콜백에 위임(Toast 등 커스텀 처리). 미제공 시 기존처럼
+   * 자동 언락(폴백 UX) — 다른 화면에서 기본 동작을 깨지 않기 위해 opt-in.
+   */
+  onWatchError?: (error: unknown) => void;
   /** 광고 로드 타임아웃 (ms). 초과 시 자동 언락 */
   timeoutMs?: number;
 }
@@ -40,6 +46,7 @@ export function TossRewardAd({
   description = "광고를 시청하면 결과를 확인할 수 있어요",
   buttonText = "광고 보고 확인하기",
   onRewarded,
+  onWatchError,
   timeoutMs = 15000,
 }: TossRewardAdProps) {
   const [unlocked, setUnlocked] = useState(false);
@@ -100,20 +107,29 @@ export function TossRewardAd({
             onRewarded?.();
           }
         },
-        onError: () => {
+        onError: (error: unknown) => {
           if (timeoutRef.current) clearTimeout(timeoutRef.current);
-          // Playback failed — unlock as fallback
-          setUnlocked(true);
           setIsShowing(false);
-          onRewarded?.();
+          if (onWatchError) {
+            // Caller opted into handling the failure itself — stay locked.
+            onWatchError(error);
+          } else {
+            // Playback failed — unlock as fallback
+            setUnlocked(true);
+            onRewarded?.();
+          }
         },
       } as Parameters<typeof showFullScreenAd>[0]);
-    } catch {
-      // SDK call threw — unlock
+    } catch (error) {
+      // SDK call threw
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
-      setUnlocked(true);
       setIsShowing(false);
-      onRewarded?.();
+      if (onWatchError) {
+        onWatchError(error);
+      } else {
+        setUnlocked(true);
+        onRewarded?.();
+      }
     }
   };
 

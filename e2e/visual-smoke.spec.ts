@@ -15,6 +15,7 @@ const ROUTES: { path: string; name: string }[] = [
   { path: "/budget", name: "budget" },
   { path: "/record", name: "record" },
   { path: "/stats", name: "stats" },
+  { path: "/simulation", name: "simulation" },
 ];
 
 /** 데이터가 필요한 화면용 localStorage 시드(앱에 맞게 채워라). 앱 스크립트보다 먼저 실행된다. */
