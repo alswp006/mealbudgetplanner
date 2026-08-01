@@ -117,6 +117,7 @@ export type RouteState = {
   App.tsx
   components/
     AdSlot.tsx
+    AllowanceHero.tsx
     Amount.tsx
     BottomCTA.tsx
     Card.tsx
@@ -160,6 +161,7 @@ export type RouteState = {
 
 ### Components (src/components/)
 - AdSlot.tsx: AdSlot
+- AllowanceHero.tsx: AllowanceHero
 - Amount.tsx: Amount
 - BottomCTA.tsx: SubmitFooter, ButtonStack
 - Card.tsx: Card
@@ -178,6 +180,7 @@ export type RouteState = {
   lib/calc.ts → imports: lib/types
   lib/storage.ts → imports: lib/types
   lib/store.ts → imports: lib/types, lib/storage, lib/calc
+  pages/Home.tsx → imports: components/ScreenScaffold, components/Card, components/Amount, components/MiniBar, components/StateView, components/AllowanceHero, components/FloatingTabBar, lib/store
 CRITICAL: Before creating any new function, type, or component, check the list above. If something similar exists, import and use it.
 
 ## Already Implemented (do NOT duplicate or overwrite)
@@ -185,3 +188,4 @@ CRITICAL: Before creating any new function, type, or component, check the list a
 - 0002: localStorage 저장소 헬퍼 (CRUD + 방어) (files: src/lib/storage.ts)
 - 0003: 계산 엔진 + 금액 포맷 순수함수 (files: src/lib/calc.ts, src/lib/format.ts)
 - 0004: 상태 관리 훅/스토어 (files: src/lib/store.ts)
+- 0006: 홈 대시보드 / (허용금액+지표+빈/로딩) (files: src/pages/HomePage.tsx, src/components/AllowanceHero.tsx)
