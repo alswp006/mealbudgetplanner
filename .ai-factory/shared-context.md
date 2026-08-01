@@ -13,32 +13,41 @@
  * 타입을 그대로 가정해도 된다. 추측이 어긋나 병합에서 무너지는 것을 막기 위한 파일이다.
  */
 
-/** 거래 기록 엔티티, 모든 페이지에서 참조 (구현: 패킷 0001) */
-export type Transaction = { id: string; date: string; amountKrw: number };
+export type Record = { id: string; date: string; amountKrw: number };
 
-/** 예산 설정, 모든 페이지에서 참조 (구현: 패킷 0001) */
-export type Budget = { monthlyLimitKrw: number };
+export type Budget = { id: string; month: string; limitKrw: number };
 
-/** 라우팅 상태 타입, App.tsx + 페이지 간 전달 (구현: 패킷 0001) */
 export type RouteState = 'home' | 'budget' | 'record' | 'stats' | 'simulation';
 
-/** 금액 표시 (₩12,300 형식), 모든 페이지에서 사용 (구현: 패킷 0003) */
-export type formatAmountFn = (amount: number) => string;
+export type saveRecordFn = (record: Record) => Promise<void>;
 
-/** 날짜 포맷 (8월 2일), 거래 목록 표시 (구현: 패킷 0003) */
-export type formatDateFn = (date: string) => string;
+export type loadRecordsFn = (month?: string) => Promise<Record[]>;
 
-/** 남은 예산 계산, HomePage + 통계 페이지 (구현: 패킷 0003) */
-export type calculateRemainingFn = (spent: number, limit: number) => number;
+export type deleteRecordFn = (id: string) => Promise<void>;
 
-/** 초과 여부 체크, OverBudgetAlert 컴포넌트 (구현: 패킷 0003) */
+export type saveBudgetFn = (budget: Budget) => Promise<void>;
+
+export type loadBudgetFn = (month: string) => Promise<Budget | null>;
+
+export type formatAmountKrwFn = (amount: number) => string;
+
+export type calculateMonthlySpentFn = (records: Record[]) => number;
+
+export type calculateRemainingFn = (limit: number, spent: number) => number;
+
 export type isOverBudgetFn = (spent: number, limit: number) => boolean;
 
-/** 예산 상태 훅, 0005/0006/0010에서 사용 (구현: 패킷 0004) */
-export type useBudgetStoreFn = () => { budget: Budget | null; setBudget(budget: Budget): void };
+export type useRecordsFn = () => { records: Record[]; addRecord: (r: Record) => Promise<void>; deleteRecord: (id: string) => Promise<void> };
 
-/** 거래 목록 상태 훅, 0008/0009/홈대시 컴포넌트에서 사용 (구현: 패킷 0004) */
-export type useTransactionStoreFn = () => { transactions: Transaction[]; addTransaction(transaction: Transaction): void; removeTransaction(id: string): void };
+export type useBudgetFn = () => { budget: Budget | null; setBudget: (b: Budget) => Promise<void> };
+
+export type useAppStateFn = () => { currentRoute: RouteState; navigate: (route: RouteState) => void };
+
+export type RewardType = 'unlock-simulation' | 'bonus-points';
+
+export type isRewardUnlockedFn = (type: RewardType) => boolean;
+
+export type grantRewardFn = (type: RewardType) => Promise<void>;
 
 ```
 
@@ -194,7 +203,7 @@ export type RouteState = {
   lib/storage.ts → imports: lib/types
   lib/store.ts → imports: lib/types, lib/storage, lib/calc
   pages/BudgetPage.tsx → imports: components/ScreenScaffold, components/BottomCTA, lib/store
-  pages/Home.tsx → imports: components/ScreenScaffold, components/Card, components/Amount, components/MiniBar, components/StateView, components/AllowanceHero, components/FloatingTabBar, lib/store
+  pages/Home.tsx → imports: components/ScreenScaffold, components/Card, components/Amount, components/MiniBar, components/StateView, components/AllowanceHero, components/FloatingTabBar, components/OverBudgetAlert, components/CheckInSection, lib/store
   pages/RecordPage.tsx → imports: components/ScreenScaffold, components/BottomCTA, lib/store, lib/types
   pages/SimulationPage.tsx → imports: components/ScreenScaffold, components/Card, components/CountUp, components/StateView, components/TossRewardAd, lib/store, lib/calc
   pages/StatsPage.tsx → imports: components/ScreenScaffold, components/Card, components/DonutChart, components/MiniBar, components/Sparkline, components/StateView, components/FloatingTabBar, lib/store, lib/format, lib/types
@@ -205,8 +214,8 @@ CRITICAL: Before creating any new function, type, or component, check the list a
 - 0002: localStorage 저장소 헬퍼 (CRUD + 방어) (files: src/lib/storage.ts)
 - 0003: 계산 엔진 + 금액 포맷 순수함수 (files: src/lib/calc.ts, src/lib/format.ts)
 - 0004: 상태 관리 훅/스토어 (files: src/lib/store.ts)
+- 0005: 예산 설정 페이지 /budget (files: src/pages/BudgetPage.tsx)
 - 0006: 홈 대시보드 / (허용금액+지표+빈/로딩) (files: src/pages/HomePage.tsx, src/components/AllowanceHero.tsx)
 - 0007: 홈 초과 경고 배너(F8) + 체크인 섹션(F5) + 배너광고 (files: src/components/OverBudgetAlert.tsx, src/components/CheckInSection.tsx)
-- 0005: 예산 설정 페이지 /budget (files: src/pages/BudgetPage.tsx)
 - 0008: 식사 기록 페이지 /record (files: src/pages/RecordPage.tsx)
 - 0009: 주간 분석 페이지 /stats (files: src/pages/StatsPage.tsx, src/components/DonutChart.tsx)
