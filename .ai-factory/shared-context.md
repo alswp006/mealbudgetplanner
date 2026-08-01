@@ -194,3 +194,4 @@ CRITICAL: Before creating any new function, type, or component, check the list a
 - 0004: 상태 관리 훅/스토어 (files: src/lib/store.ts)
 - 0006: 홈 대시보드 / (허용금액+지표+빈/로딩) (files: src/pages/HomePage.tsx, src/components/AllowanceHero.tsx)
 - 0007: 홈 초과 경고 배너(F8) + 체크인 섹션(F5) + 배너광고 (files: src/components/OverBudgetAlert.tsx, src/components/CheckInSection.tsx)
+- 0005: 예산 설정 페이지 /budget (files: src/pages/BudgetPage.tsx)
