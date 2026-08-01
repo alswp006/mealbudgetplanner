@@ -9,6 +9,8 @@ import { MiniBar } from '@/components/MiniBar';
 import { EmptyState, LoadingState } from '@/components/StateView';
 import { AllowanceHero } from '@/components/AllowanceHero';
 import { FloatingTabBar } from '@/components/FloatingTabBar';
+import { OverBudgetAlert } from '@/components/OverBudgetAlert';
+import { CheckInSection } from '@/components/CheckInSection';
 import { useDerived } from '@/lib/store';
 
 const TAB_ITEMS = [
@@ -16,6 +18,8 @@ const TAB_ITEMS = [
   { label: '기록', path: '/record' },
   { label: '통계', path: '/stats' },
 ];
+
+const AD_GROUP_ID = (import.meta.env.VITE_TOSS_AD_GROUP_ID as string | undefined) ?? 'home-checkin';
 
 function fireHaptic(type: 'success' | 'tickWeak') {
   try {
@@ -32,7 +36,9 @@ function todayString(): string {
 export default function Home() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { remaining, appData } = useDerived(todayString());
+  const today = todayString();
+  const month = today.slice(0, 7);
+  const { remaining, appData, overStatus, todayCheckedIn, streak, todayHasMeal } = useDerived(today);
 
   const recorded = Boolean((location.state as { recorded?: boolean } | null)?.recorded);
   const [showRecordedToast, setShowRecordedToast] = useState(recorded);
@@ -94,6 +100,13 @@ export default function Home() {
 
           <Spacing size={16} />
 
+          {overStatus.status !== 'normal' && (
+            <>
+              <OverBudgetAlert status={overStatus} onAdjustBudget={() => navigate('/budget')} />
+              <Spacing size={16} />
+            </>
+          )}
+
           <Card testId="budget-card">
             <Paragraph.Text typography="st11">남은 예산</Paragraph.Text>
             <Spacing size={4} />
@@ -105,6 +118,20 @@ export default function Home() {
             <Spacing size={12} />
             <MiniBar ratio={progressRatio} testId="budget-progress" />
           </Card>
+
+          <Spacing size={16} />
+
+          <CheckInSection
+            today={today}
+            month={month}
+            budgetAmount={budget.amount}
+            spentThisMonth={spentThisMonth}
+            todayHasMeal={todayHasMeal}
+            todayCheckedIn={todayCheckedIn}
+            streak={streak}
+            onCheckIn={appData.doCheckIn}
+            adGroupId={AD_GROUP_ID}
+          />
         </>
       )}
 

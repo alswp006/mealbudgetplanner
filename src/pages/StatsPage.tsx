@@ -111,6 +111,12 @@ export default function StatsPage() {
               <Sparkline data={dailyTotals} testId="stats-sparkline" />
             </>
           ) : null}
+
+          <Spacing size={16} />
+
+          <Button variant="weak" display="block" onClick={() => navigate('/simulation')}>
+            절약 시뮬레이션 보기
+          </Button>
         </>
       )}
 
