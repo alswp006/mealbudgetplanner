@@ -171,3 +171,4 @@ CRITICAL: Before creating any new function, type, or component, check the list a
 
 ## Already Implemented (do NOT duplicate or overwrite)
 - 0001: 엔티티 타입 + RouteState 정의 (files: src/lib/types.ts)
+- 0002: localStorage 저장소 헬퍼 (CRUD + 방어) (files: src/lib/storage.ts)
