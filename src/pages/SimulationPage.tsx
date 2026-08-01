@@ -1,14 +1,16 @@
 import { useState } from 'react';
-import { Top, Toast, Paragraph, Button } from '@toss/tds-mobile';
+import { Top, Toast, Paragraph, Button, Spacing } from '@toss/tds-mobile';
 import { ScreenScaffold } from '@/components/ScreenScaffold';
 import { Card } from '@/components/Card';
 import { CountUp } from '@/components/CountUp';
 import { EmptyState } from '@/components/StateView';
 import { TossRewardAd } from '@/components/TossRewardAd';
+import { AdSlot } from '@/components/AdSlot';
 import { useAppData } from '@/lib/store';
 import { getSaving } from '@/lib/calc';
 
 const AD_SLOT_ID = (import.meta.env.VITE_TOSS_AD_SLOT_ID as string | undefined) ?? 'simulation-unlock';
+const AD_GROUP_ID = (import.meta.env.VITE_TOSS_AD_GROUP_ID as string | undefined) ?? 'simulation-result';
 
 function todayDate(): string {
   return new Date().toISOString().slice(0, 10);
@@ -56,7 +58,11 @@ export default function SimulationPage() {
           }
         />
       ) : alreadySeenToday ? (
-        <SavingResultCard amount={savingAmount} />
+        <>
+          <SavingResultCard amount={savingAmount} />
+          <Spacing size={16} />
+          <AdSlot adGroupId={AD_GROUP_ID} />
+        </>
       ) : (
         <TossRewardAd
           slotId={AD_SLOT_ID}
@@ -66,6 +72,8 @@ export default function SimulationPage() {
           onWatchError={handleWatchError}
         >
           <SavingResultCard amount={savingAmount} />
+          <Spacing size={16} />
+          <AdSlot adGroupId={AD_GROUP_ID} />
         </TossRewardAd>
       )}
       <Toast
