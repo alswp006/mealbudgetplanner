@@ -121,9 +121,11 @@ export type RouteState = {
     Amount.tsx
     BottomCTA.tsx
     Card.tsx
+    CheckInSection.tsx
     CountUp.tsx
     FloatingTabBar.tsx
     MiniBar.tsx
+    OverBudgetAlert.tsx
     PageShell.tsx
     ScreenScaffold.tsx
     Sparkline.tsx
@@ -165,9 +167,11 @@ export type RouteState = {
 - Amount.tsx: Amount
 - BottomCTA.tsx: SubmitFooter, ButtonStack
 - Card.tsx: Card
+- CheckInSection.tsx: CheckInSection
 - CountUp.tsx: CountUp
 - FloatingTabBar.tsx: FloatingTabBar
 - MiniBar.tsx: MiniBar
+- OverBudgetAlert.tsx: OverBudgetAlert
 - PageShell.tsx: PageShell
 - ScreenScaffold.tsx: ScreenScaffold
 - Sparkline.tsx: Sparkline
@@ -189,3 +193,4 @@ CRITICAL: Before creating any new function, type, or component, check the list a
 - 0003: 계산 엔진 + 금액 포맷 순수함수 (files: src/lib/calc.ts, src/lib/format.ts)
 - 0004: 상태 관리 훅/스토어 (files: src/lib/store.ts)
 - 0006: 홈 대시보드 / (허용금액+지표+빈/로딩) (files: src/pages/HomePage.tsx, src/components/AllowanceHero.tsx)
+- 0007: 홈 초과 경고 배너(F8) + 체크인 섹션(F5) + 배너광고 (files: src/components/OverBudgetAlert.tsx, src/components/CheckInSection.tsx)
