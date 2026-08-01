@@ -144,6 +144,7 @@ export type RouteState = {
     TossPurchase.tsx
     TossRewardAd.tsx
     TossRewardAdMini.tsx
+    ads/
   hooks/
   lib/
     calc.ts
@@ -162,6 +163,7 @@ export type RouteState = {
     StatsPage.tsx
     __TdsGallery.tsx
     __chiptest.tsx
+    simulation/
   styles/
     globals.css
     reward-ad.css
@@ -170,7 +172,7 @@ export type RouteState = {
 
 ### Exports (src/lib/)
 - calc.ts: export function getRemainingPerMeal(params:; export function getPaceBadge(params:; export function getSaving(params:; export function getWeeklyStats(params:; export function getOverBudgetStatus(params:
-- contract.ts: export type Transaction =; export type Budget =; export type RouteState = 'home' | 'budget' | 'record' | 'stats' | 'simulation'; export type formatAmountFn = (amount: number) => string; export type formatDateFn = (date: string) => string; export type calculateRemainingFn = (spent: number, limit: number) => number; export type isOverBudgetFn = (spent: number, limit: number) => boolean; export type useBudgetStoreFn = () =>
+- contract.ts: export type Record =; export type Budget =; export type RouteState = 'home' | 'budget' | 'record' | 'stats' | 'simulation'; export type saveRecordFn = (record: Record) => Promise<void>; export type loadRecordsFn = (month?: string) => Promise<Record[]>; export type deleteRecordFn = (id: string) => Promise<void>; export type saveBudgetFn = (budget: Budget) => Promise<void>; export type loadBudgetFn = (month: string) => Promise<Budget | null>
 - format.ts: export function formatKRW(amount: number): string
 - storage.ts: export function getItem<T>(key: string): T | null; export function setItem<T>(key: string, value: T): void; export function removeItem(key: string): void; export function safeParse<T>(key: string, fallback: T): T; export function getMeals(): MealRecord[]; export function addMeal(input: Omit<MealRecord, 'id' | 'createdAt'>): WriteResult; export function getBudget(month: string): MonthlyBudget | null; export function setBudget(month: string, budget: MonthlyBudget): WriteResult
 - store.ts: export interface AppData; export function useAppData(today: string); export interface DerivedValues; export function useDerived(today: string): DerivedValues &
@@ -205,7 +207,7 @@ export type RouteState = {
   pages/BudgetPage.tsx → imports: components/ScreenScaffold, components/BottomCTA, lib/store
   pages/Home.tsx → imports: components/ScreenScaffold, components/Card, components/Amount, components/MiniBar, components/StateView, components/AllowanceHero, components/FloatingTabBar, components/OverBudgetAlert, components/CheckInSection, lib/store
   pages/RecordPage.tsx → imports: components/ScreenScaffold, components/BottomCTA, lib/store, lib/types
-  pages/SimulationPage.tsx → imports: components/ScreenScaffold, components/Card, components/CountUp, components/StateView, components/TossRewardAd, lib/store, lib/calc
+  pages/SimulationPage.tsx → imports: components/ScreenScaffold, components/Card, components/CountUp, components/StateView, components/TossRewardAd, components/AdSlot, lib/store, lib/calc
   pages/StatsPage.tsx → imports: components/ScreenScaffold, components/Card, components/DonutChart, components/MiniBar, components/Sparkline, components/StateView, components/FloatingTabBar, lib/store, lib/format, lib/types
 CRITICAL: Before creating any new function, type, or component, check the list above. If something similar exists, import and use it.
 
@@ -219,3 +221,4 @@ CRITICAL: Before creating any new function, type, or component, check the list a
 - 0007: 홈 초과 경고 배너(F8) + 체크인 섹션(F5) + 배너광고 (files: src/components/OverBudgetAlert.tsx, src/components/CheckInSection.tsx)
 - 0008: 식사 기록 페이지 /record (files: src/pages/RecordPage.tsx)
 - 0009: 주간 분석 페이지 /stats (files: src/pages/StatsPage.tsx, src/components/DonutChart.tsx)
+- heal-1-02: 광고/리워드 래퍼 컴포넌트 + 시뮬레이션 리워드 게이팅 결선 (files: src/components/ads/AdBannerSlot.tsx, src/components/ads/RewardGate.tsx, src/pages/simulation/SimulationPage.tsx)
