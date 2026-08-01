@@ -1,0 +1,482 @@
+[
+  {
+    "id": "0001",
+    "title": "엔티티 타입 + RouteState 정의",
+    "epic": "Epic 1. 타입 정의",
+    "task": {
+      "description": "SPEC Data Models의 모든 인터페이스/유니온과 저장소 반환 계약, 페이지 간 네비게이션 계약을 순수 타입으로 정의한다. 런타임 코드 없음. MonthlyBudget, MealRecord, MealType, MealCategory, DailyCheckIn, PaceBadge, AppFlags. 계산 결과 RemainingResult{dailyAllowance,todayRemaining,isOver}, SavingResult, WeeklyStats. WriteResult={ok:true}|{ok:false;reason:'QUOTA'|'INVALID_AMOUNT'}. RouteState 5개 라우트 키 정의.",
+      "acceptance_criteria": [
+        "tsc --noEmit 통과, 다른 파일에서 import 가능",
+        "런타임 export 0개(타입/인터페이스만)",
+        "RouteState에 /, /budget, /record, /stats, /simulation 5개 키 모두 포함"
+      ]
+    },
+    "covers": [
+      "F1-AC2",
+      "F4-AC1",
+      "F5-AC1"
+    ],
+    "files": [
+      "src/lib/types.ts"
+    ],
+    "definition_of_done": [
+      "tsc --noEmit 통과",
+      "런타임 export 없음",
+      "RouteState 5개 라우트 키 포함, /record는 {defaultMealType?:MealType}|undefined"
+    ],
+    "depends_on": [],
+    "db_schema": "interface MonthlyBudget{month:string;amount:number;createdAt:number;updatedAt:number} key mbp_budget_v1; interface MealRecord{id,date,mealType,category,amount,memo,createdAt} key mbp_meals_v1; interface DailyCheckIn{date,badge,spentSoFar,createdAt} key mbp_checkins_v1; interface AppFlags{onboardingSeen,lastSimulationDate} key mbp_flags_v1",
+    "api_contract": "",
+    "dependencies": [],
+    "ui_requirements": ""
+  },
+  {
+    "id": "0002",
+    "title": "localStorage 저장소 헬퍼 (CRUD + 방어)",
+    "epic": "Epic 2. 데이터 계층",
+    "task": {
+      "description": "4개 키의 read/write 헬퍼 구현. crypto.randomUUID 폴백 포함. try/catch로 QuotaExceededError→{ok:false,reason:'QUOTA'}, 손상 JSON→null 반환+키 리셋(console.error 미출력). getMeals()→[](키 없으면 빈 배열). addMeal(input): amount 검증(정수 1~999,999, 위반 시 INVALID_AMOUNT)→id/createdAt 채워 배열 맨 앞 삽입, memo 40자 클램프. getBudget/setBudget/getCheckIns/addCheckIn/getFlags/setFlags. safeParse 유틸: parse 실패 시 removeItem 후 fallback.",
+      "acceptance_criteria": [
+        "키 부재 시 getMeals() []",
+        "손상값 주입 시 getBudget null + console.error 0",
+        "quota mock 시 addMeal {ok:false,reason:'QUOTA'}",
+        "amount 0/-500/1000000 → INVALID_AMOUNT"
+      ]
+    },
+    "covers": [
+      "F1-AC1",
+      "F1-AC2",
+      "F1-AC5",
+      "F1-AC6",
+      "F1-AC7"
+    ],
+    "files": [
+      "src/lib/storage.ts"
+    ],
+    "definition_of_done": [
+      "getMeals() 키 없으면 [] 반환(throw 없음)",
+      "addMeal 유효 시 배열 맨 앞 삽입 + id/createdAt 채움",
+      "손상 JSON → null + 키 리셋 + console.error 0",
+      "QUOTA/INVALID_AMOUNT WriteResult 반환",
+      "앱 컴파일 유지"
+    ],
+    "depends_on": [
+      "0001"
+    ],
+    "db_schema": "key mbp_meals_v1: MealRecord[]; key mbp_budget_v1: Record<string,MonthlyBudget>; key mbp_checkins_v1: DailyCheckIn[]; key mbp_flags_v1: AppFlags",
+    "api_contract": "",
+    "dependencies": [],
+    "ui_requirements": ""
+  },
+  {
+    "id": "0003",
+    "title": "계산 엔진 + 금액 포맷 순수함수",
+    "epic": "Epic 2. 데이터 계층",
+    "task": {
+      "description": "결정론적 산술 계산 순수함수 구현(생성형 AI 미사용). Asia/Seoul YYYY-MM-DD/YYYY-MM 유틸. getRemainingPerMeal({month,today}): dailyAllowance=floor((예산-누적)/이번달남은일수), todayRemaining=dailyAllowance-오늘지출, 음수 0 클램프+isOver:true, 예산 0/미설정 시 Infinity 방어. getPaceBadge: ideal=예산*(경과일/총일수), ≤ideal*0.9 ahead, ≤ideal*1.1 ontrack, else over. getSaving: 최근30일 배달지출*0.3 round. getWeeklyStats: 최근7일 카테고리별 합계·비율·총액·최다. getOverBudgetStatus: 90%/100% 구간, 예산0 미표시. formatKRW: Intl.NumberFormat ko-KR + 원, 음수 0원.",
+      "acceptance_criteria": [
+        "예산600k/누적200k/남은30일/오늘4k → dailyAllowance=13333, todayRemaining=9333",
+        "초과 시 todayRemaining=0 + isOver:true",
+        "예산0 입력 시 Infinity/NaN 없음",
+        "tsc --noEmit 통과"
+      ]
+    },
+    "covers": [
+      "F1-AC3",
+      "F1-AC4",
+      "F5-AC2",
+      "F6-AC1",
+      "F7-AC2",
+      "F8-AC5"
+    ],
+    "files": [
+      "src/lib/calc.ts",
+      "src/lib/format.ts"
+    ],
+    "definition_of_done": [
+      "SPEC 수치 재현: dailyAllowance=13333, todayRemaining=9333",
+      "초과 시 0+isOver:true",
+      "예산0 방어(Infinity/NaN 없음)",
+      "formatKRW 천단위 콤마+원, 음수 0원 클램프",
+      "tsc --noEmit 통과"
+    ],
+    "depends_on": [
+      "0001"
+    ],
+    "db_schema": "",
+    "api_contract": "",
+    "dependencies": [],
+    "ui_requirements": ""
+  },
+  {
+    "id": "0004",
+    "title": "상태 관리 훅/스토어",
+    "epic": "Epic 2. 데이터 계층",
+    "task": {
+      "description": "storage+calc를 감싸 컴포넌트에 데이터/파생값을 제공하는 경량 store(React state + subscribe 또는 Context). 쓰기 후 재조회로 홈 지표 즉시 갱신. useAppData(): {budget,meals,checkins,flags,loading}+refresh(). useDerived(today): remaining,weeklyStats,overStatus,todayCheckedIn,streak(연속 체크인 일수),todayHasMeal. 액션: saveBudget,recordMeal,doCheckIn,markSimulationSeen. 초기 마운트 loading:true→읽기 완료 후 false(Skeleton 트리거용).",
+      "acceptance_criteria": [
+        "훅이 loading 플래그 노출",
+        "recordMeal 후 refresh 시 meals 최신순 반영",
+        "손상 데이터 시 안전 기본값(예산 없음 취급)",
+        "컴파일 유지"
+      ]
+    },
+    "covers": [
+      "F3-AC5",
+      "F5-AC6",
+      "F6-AC4"
+    ],
+    "files": [
+      "src/lib/store.ts"
+    ],
+    "definition_of_done": [
+      "useAppData loading 플래그 노출",
+      "recordMeal 후 meals 최신순 반영",
+      "useDerived가 remaining/weeklyStats/overStatus/streak 제공",
+      "손상 데이터 시 예산 없음 취급",
+      "컴파일 유지"
+    ],
+    "depends_on": [
+      "0002",
+      "0003"
+    ],
+    "db_schema": "",
+    "api_contract": "",
+    "dependencies": [],
+    "ui_requirements": ""
+  },
+  {
+    "id": "0005",
+    "title": "예산 설정 페이지 /budget",
+    "epic": "Epic 3. UI 페이지",
+    "task": {
+      "description": "ScreenScaffold(Top '이번 달 식비 예산' + 뒤로가기) + 금액 TextField(inputMode='numeric', 자동 천단위 콤마) + SubmitFooter+Button('저장하기', display='block'). 기존 예산 프리필. 검증(빈/0, 상한 9,999,999) 실패 시 TextField.help 에러. 저장 성공 시 성공 햅틱→saveBudget→Toast '예산이 저장되었어요'→navigate('/'). location.state는 RouteState 캐스팅.",
+      "acceptance_criteria": [
+        "600000 저장 → mbp_budget_v1['2026-08'] 기록 + Toast '예산이 저장되었어요' + 홈 복귀",
+        "기존 500000 존재 시 500,000 프리필",
+        "빈/0 → '예산 금액을 입력해주세요' 에러",
+        "10000000 → '최대 9,999,999원까지 입력할 수 있어요' 에러, 뒤로가기 시 저장 없이 복귀"
+      ]
+    },
+    "covers": [
+      "F2-AC1",
+      "F2-AC2",
+      "F2-AC3",
+      "F2-AC4",
+      "F2-AC5",
+      "F2-AC6"
+    ],
+    "files": [
+      "src/pages/BudgetPage.tsx"
+    ],
+    "definition_of_done": [
+      "저장 성공 시 Toast+navigate('/')",
+      "프리필 동작",
+      "빈/0/상한 초과 에러 텍스트 표시",
+      "inputMode numeric 숫자 키패드",
+      "뒤로가기 저장 없이 복귀"
+    ],
+    "depends_on": [
+      "0004"
+    ],
+    "db_schema": "",
+    "api_contract": "",
+    "dependencies": [],
+    "ui_requirements": "Pattern FixedBottomCTA. TDS whitelist: ScreenScaffold, Top, TextField, Paragraph, Spacing, SubmitFooter(템플릿), Button, Toast.\n```tsx\n<ScreenScaffold top={<Top title={<Top.TitleParagraph>이번 달 식비 예산</Top.TitleParagraph>} />} footer={<SubmitFooter><Button variant=\"fill\" size=\"large\" display=\"block\" onClick={onSave}>저장하기</Button></SubmitFooter>}>\n  <Spacing size={8} />\n  <Paragraph.Text typography=\"st11\" color=\"secondary\">한 달 동안 쓸 식비 총액을 정해주세요</Paragraph.Text>\n  <Spacing size={16} />\n  <TextField variant=\"box\" label=\"예산 금액\" value={formatted} onChange={onChange} inputMode=\"numeric\" hasError={!!error} help={error} />\n</ScreenScaffold>\n```\nStates: Loading 프리필 즉시완료(스켈레톤 불필요), Empty placeholder '0', Error 빈값/0 '예산 금액을 입력해주세요' 상한 '최대 9,999,999원까지 입력할 수 있어요'(help+hasError). Interactions: 입력 중 Intl.NumberFormat ko-KR 자동 콤마, 저장 시 숫자 파싱, 기존 예산 프리필, 저장 탭 유효 시 generateHapticFeedback({type:'success'})→저장→Toast→nav('/'), Top 뒤로가기 저장없이 복귀."
+  },
+  {
+    "id": "0006",
+    "title": "홈 대시보드 / (허용금액+지표+빈/로딩)",
+    "epic": "Epic 3. UI 페이지",
+    "task": {
+      "description": "ScreenScaffold(Top '식비 플래너', right Chip '8월'). SummaryHero(data-testid='allowance-hero', CountUp 허용금액, 서브 '오늘 남은 끼니 허용 금액'). Card(data-testid='budget-card': 남은 예산 t2 강조/이번 달 지출/진행률 바). 예산 미설정 시 EmptyState(Asset.ContentIcon+'이번 달 예산을 정해볼까요?'+'예산 설정하기'→/budget). 로딩 시 Skeleton. '식사 기록하기' 버튼(display='block')→성공 햅틱→navigate('/record'). 초과 시 히어로 0원. location.state.recorded 있으면 '기록했어요' Toast 후 소비. AllowanceHero 컴포넌트 분리.",
+      "acceptance_criteria": [
+        "SPEC 수치 시 히어로 9,333원, budget-card 남은 400,000원/지출 200,000원/진행률 33%",
+        "예산 없으면 빈 상태+버튼 이동",
+        "마운트 직후 Skeleton→실데이터",
+        "초과 시 히어로 0원, '식사 기록하기'→/record"
+      ]
+    },
+    "covers": [
+      "F3-AC1",
+      "F3-AC2",
+      "F3-AC3",
+      "F3-AC4",
+      "F3-AC5",
+      "F3-AC7"
+    ],
+    "files": [
+      "src/pages/HomePage.tsx",
+      "src/components/AllowanceHero.tsx"
+    ],
+    "definition_of_done": [
+      "히어로 CountUp 허용금액 표시",
+      "budget-card 지표+진행률",
+      "예산 미설정 EmptyState",
+      "Skeleton 로딩",
+      "초과 시 0원, recorded state 소비 Toast"
+    ],
+    "depends_on": [
+      "0004"
+    ],
+    "db_schema": "",
+    "api_contract": "",
+    "dependencies": [],
+    "ui_requirements": "Pattern StatusPanel. TDS whitelist: ScreenScaffold, Top, SummaryHero(템플릿), Amount(템플릿), Badge, ListRow, Button, Chip, Spacing, Paragraph, Border, Skeleton, EmptyState(템플릿), AdSlot(템플릿), FloatingTabBar(템플릿), BottomSheet, Toast.\n```tsx\n<ScreenScaffold top={<Top title={<Top.TitleParagraph>식비 플래너</Top.TitleParagraph>} right={<Chip label=\"8월\" variant=\"outlined\" />} />}>\n  {noBudget ? (<EmptyState title=\"이번 달 예산을 정해볼까요?\" description=\"예산을 정하면 끼니별 허용 금액을 알려드려요\" action={<Button variant=\"fill\" display=\"block\" onClick={()=>nav('/budget')}>예산 설정하기</Button>} />) : (<>\n    {isOver && <Badge tone=\"warning\">예산을 초과했어요</Badge>}\n    <SummaryHero data-testid=\"allowance-hero\" label=\"오늘 남은 끼니 허용 금액\" value={<Amount value={9333} unit=\"원\" typography=\"t1\" countUp />} caption=\"오늘 지출 4,000원 반영\" />\n    <Spacing size={16} />\n    <div data-testid=\"budget-card\"><Paragraph.Text typography=\"t2\">남은 예산 400,000원</Paragraph.Text><Paragraph.Text typography=\"st11\" color=\"secondary\">이번 달 지출 200,000원</Paragraph.Text><ProgressBar value={33} /></div>\n    <Spacing size={16} />\n    {/* AdSlot 및 오늘 기록/체크인 섹션은 0007에서 주입 */}\n    <Button variant=\"fill\" display=\"block\" onClick={()=>nav('/record')}>식사 기록하기</Button>\n  </>)}\n  <FloatingTabBar active=\"home\" />\n</ScreenScaffold>\n```\nStates: Loading Skeleton(히어로1+카드1), Empty EmptyState+'예산 설정하기', Error 손상데이터는 null 복구→예산 미설정 Empty 폴백. Interactions: '식사 기록하기'→generateHapticFeedback({type:'success'})→nav('/record'), 진입 시 location.state.recorded 있으면 '기록했어요' Toast 후 state 소비. ProgressBar 없으면 Border+flex 폭 커스텀 var(--tds-color-*). HEX 하드코딩 금지."
+  },
+  {
+    "id": "0007",
+    "title": "홈 초과 경고 배너(F8) + 체크인 섹션(F5) + 배너광고",
+    "epic": "Epic 3. UI 페이지",
+    "task": {
+      "description": "홈에 인앱 경고 배너와 체크인 UI 추가. 경고: data-testid='over-alert' Callout/Card — 90%↑&<100% '예산의 90%를 썼어요. 남은 예산 X원'(warning), 100%↑ '예산을 A원 초과했어요'(critical), 90%미만/예산0 미렌더. '예산 조정' 버튼→navigate('/budget'). 체크인: 오늘 기록 0건 시 버튼 disabled+'오늘 식사를 먼저 기록해주세요'. 미체크인 시 활성→AdSlot 배너 노출 후 doCheckIn+배지 BottomSheet(여유/정상/초과). 중복 시 광고/저장 없이 Toast '오늘은 이미 체크인했어요'+'체크인 완료' 고정. 광고 실패 시 영역 접고 배지 지급. 3일 연속 시 'N일 연속 기록 중 🔥'.",
+      "acceptance_criteria": [
+        "소진 95% → over-alert warning, 105% → critical, 85%/예산0 → DOM에 over-alert 없음",
+        "오늘 기록 0건 → 체크인 disabled",
+        "체크인 성공 시 badge 저장+BottomSheet",
+        "재탭 시 Toast+'체크인 완료' 고정, 3일 연속 텍스트 표시"
+      ]
+    },
+    "covers": [
+      "F8-AC1",
+      "F8-AC2",
+      "F8-AC3",
+      "F8-AC4",
+      "F5-AC1",
+      "F5-AC3",
+      "F5-AC4",
+      "F5-AC5",
+      "F5-AC6"
+    ],
+    "files": [
+      "src/components/OverBudgetAlert.tsx",
+      "src/components/CheckInSection.tsx"
+    ],
+    "definition_of_done": [
+      "95%→warning, 105%→critical, 85%/예산0→미렌더",
+      "오늘 기록 0건 disabled",
+      "체크인 성공 badge 저장+BottomSheet",
+      "중복 Toast+고정, 광고 실패 시 배지 지급 진행"
+    ],
+    "depends_on": [
+      "0004",
+      "0006"
+    ],
+    "db_schema": "",
+    "api_contract": "",
+    "dependencies": [],
+    "ui_requirements": "홈 하위 섹션 컴포넌트. TDS whitelist: Callout/Card, Badge, Button, ListRow, Chip, Spacing, Paragraph, AdSlot(템플릿), BottomSheet, Toast.\nOverBudgetAlert: data-testid='over-alert'. overStatus 기준 90%↑&<100% tone=warning '예산의 90%를 썼어요. 남은 예산 X원', 100%↑ tone=critical '예산을 A원 초과했어요', 그 외/예산0 return null. '예산 조정' 버튼→nav('/budget').\nCheckInSection: '오늘 기록' 리스트(ListRow 2RowTypeA: `${label} · ${won}` / memo||'-', right Chip 카테고리라벨). 체크인 버튼 <Button variant=\"weak\" display=\"block\" disabled={!hasTodayMeal||checkedIn}>{checkedIn?'오늘 체크인 완료':'오늘 체크인'}</Button>. !hasTodayMeal 시 <Paragraph.Text typography=\"st13\" color=\"tertiary\">오늘 식사를 먼저 기록해주세요</Paragraph.Text>. 탭→AdSlot 배너 노출→doCheckIn→BottomSheet(여유/정상/초과 배지)+generateHapticFeedback({type:'success'}). 중복 시 Toast position='top' '오늘은 이미 체크인했어요'. 광고 로드 실패 시 영역 접고 배지 지급 정상. streak≥3 시 'N일 연속 기록 중 🔥'. AdSlot은 지표 카드와 오늘 기록 섹션 사이 배치. HEX 금지, var(--tds-color-*)."
+  },
+  {
+    "id": "0008",
+    "title": "식사 기록 페이지 /record",
+    "epic": "Epic 3. UI 페이지",
+    "task": {
+      "description": "ScreenScaffold(Top '식사 기록'). 끼니 Chip 4개(아침/점심/저녁/간식) + 카테고리 Chip 3개(배달/직접조리/외식, 단일 선택, ≥44px). 금액 TextField(inputMode='numeric') + 메모 TextField(40자 차단). SubmitFooter+Button('기록 저장', 키보드 위 유지). 저장 성공→성공 햅틱→recordMeal→Toast '기록했어요'→navigate('/', {state:{recorded:true}}). 검증 실패/QUOTA 처리(AlertDialog). location.state.defaultMealType 프리필(RouteState 캐스팅).",
+      "acceptance_criteria": [
+        "점심/배달/12000/김밥 저장 → addMeal 기록+Toast+홈 이동(state recorded:true)",
+        "금액 빈 → '금액을 입력해주세요'",
+        "1000000 → '한 끼 최대 999,999원까지 입력할 수 있어요'",
+        "QUOTA 반환 시 AlertDialog '저장 공간이 부족해요...' 화면 유지, 메모 41자→40자 차단, 숫자 키패드"
+      ]
+    },
+    "covers": [
+      "F4-AC1",
+      "F4-AC2",
+      "F4-AC3",
+      "F4-AC4",
+      "F4-AC5",
+      "F4-AC6",
+      "F4-AC7"
+    ],
+    "files": [
+      "src/pages/RecordPage.tsx"
+    ],
+    "definition_of_done": [
+      "정상 입력 저장→Toast+navigate('/',{state:{recorded:true}})",
+      "금액 빈/상한 초과 에러 텍스트",
+      "QUOTA AlertDialog 화면 유지",
+      "메모 40자 차단, 숫자 키패드"
+    ],
+    "depends_on": [
+      "0004"
+    ],
+    "db_schema": "",
+    "api_contract": "",
+    "dependencies": [],
+    "ui_requirements": "Pattern FixedBottomCTA(다중 입력 폼 + 하단 고정 저장 + Chip 선택). TDS whitelist: ScreenScaffold, Top, Chip, TextField, Paragraph, Spacing, SubmitFooter(템플릿), Button, AlertDialog, Toast.\n```tsx\n<ScreenScaffold top={<Top title={<Top.TitleParagraph>식사 기록</Top.TitleParagraph>} />} footer={<SubmitFooter><Button variant=\"fill\" size=\"large\" display=\"block\" onClick={onSave}>기록 저장</Button></SubmitFooter>}>\n  <Paragraph.Text typography=\"t4\">끼니</Paragraph.Text>\n  {/* Chip 4개 아침/점심/저녁/간식 단일선택 */}\n  <Spacing size={16} />\n  <Paragraph.Text typography=\"t4\">카테고리</Paragraph.Text>\n  {/* Chip 3개 배달/직접조리/외식 단일선택 ≥44px */}\n  <Spacing size={16} />\n  <TextField variant=\"box\" label=\"금액\" inputMode=\"numeric\" hasError help />\n  <Spacing size={12} />\n  <TextField variant=\"box\" label=\"메모\" maxLength={40} />\n</ScreenScaffold>\n```\nStates: Error 금액 빈 '금액을 입력해주세요', 상한 '한 끼 최대 999,999원까지 입력할 수 있어요'(help+hasError), QUOTA AlertDialog '저장 공간이 부족해요...'. Interactions: Chip tickWeak 햅틱, 저장 성공 generateHapticFeedback({type:'success'})→recordMeal→Toast '기록했어요'→nav('/',{state:{recorded:true}}), location.state.defaultMealType 프리필. 금액 입력 중 콤마 표시, 메모 41자 입력 차단. HEX 금지."
+  },
+  {
+    "id": "0009",
+    "title": "주간 분석 페이지 /stats",
+    "epic": "Epic 3. UI 페이지",
+    "task": {
+      "description": "ScreenScaffold(Top '주간 분석'). 도넛 차트(SVG DonutChart 컴포넌트, var(--tds-color-*) 팔레트 — HEX 금지). Card(data-testid='stats-card': '주간 총 식비' t2 강조 + MiniBar 3개). 최다 카테고리 피드백 Paragraph.Text. 3일↑ 기록 시 Sparkline. 빈 상태(Asset.ContentIcon+'이번 주 기록이 아직 없어요'+'기록하러 가기'→/record). 로딩 Skeleton. getWeeklyStats 사용.",
+      "acceptance_criteria": [
+        "배달50k/외식30k/직접조리20k → 도넛 50/30/20% + 범례 금액",
+        "stats-card 총 100,000원 + MiniBar 3",
+        "기록 0건 → 빈 상태, 도넛 미표시",
+        "배달 최다 시 '이번 주는 배달에 가장 많이 썼어요', 3일↑ Sparkline, HEX 하드코딩 0"
+      ]
+    },
+    "covers": [
+      "F6-AC1",
+      "F6-AC2",
+      "F6-AC3",
+      "F6-AC4",
+      "F6-AC5",
+      "F6-AC6"
+    ],
+    "files": [
+      "src/pages/StatsPage.tsx",
+      "src/components/DonutChart.tsx"
+    ],
+    "definition_of_done": [
+      "도넛 비율+범례 금액 표시",
+      "stats-card 총액+MiniBar",
+      "빈 상태 EmptyState+도넛 미표시",
+      "최다 카테고리 피드백, 마운트 직후 Skeleton, HEX 0"
+    ],
+    "depends_on": [
+      "0004"
+    ],
+    "db_schema": "",
+    "api_contract": "",
+    "dependencies": [],
+    "ui_requirements": "Pattern StatusPanel(분석). TDS whitelist: ScreenScaffold, Top, Card, Paragraph, Spacing, Skeleton, EmptyState(템플릿), FloatingTabBar(템플릿). DonutChart는 SVG 커스텀(TDS 미제공 레이아웃).\n```tsx\n<ScreenScaffold top={<Top title={<Top.TitleParagraph>주간 분석</Top.TitleParagraph>} />}>\n  {empty ? <EmptyState title=\"이번 주 기록이 아직 없어요\" action={<Button display=\"block\" onClick={()=>nav('/record')}>기록하러 가기</Button>} /> : <>\n    <DonutChart data={weeklyStats.byCategory} /> {/* var(--tds-color-*) 팔레트 */}\n    <Spacing size={16} />\n    <div data-testid=\"stats-card\"><Paragraph.Text typography=\"t2\">주간 총 식비 100,000원</Paragraph.Text>{/* MiniBar 3 */}</div>\n    <Spacing size={12} />\n    <Paragraph.Text>이번 주는 배달에 가장 많이 썼어요</Paragraph.Text>\n    {days>=3 && <Sparkline/>}\n  </>}\n  <FloatingTabBar active=\"stats\" />\n</ScreenScaffold>\n```\nStates: Loading Skeleton, Empty EmptyState+'기록하러 가기', 도넛/MiniBar 색상은 반드시 var(--tds-color-*), HEX 하드코딩 금지. 최다 카테고리에 따라 피드백 문구 동적."
+  },
+  {
+    "id": "0010",
+    "title": "절약 시뮬레이션 페이지 /simulation (리워드 게이팅)",
+    "epic": "Epic 3. UI 페이지",
+    "task": {
+      "description": "ScreenScaffold(Top '절약 시뮬레이션'). getSaving으로 최근 배달지출×0.3 절약액 계산. TossRewardAd로 결과 게이팅: 미시청 시 결과 숫자 블러+비노출, 광고 시청 후 CountUp 절약액 노출 + markSimulationSeen(flags 저장). 배달 0건 시 빈 상태+버튼 disabled. 광고 실패 시 Toast+결과 블러 유지(크래시 없음). 당일 재진입 시(lastSimulationDate==오늘) 광고 스킵하고 바로 노출.",
+      "acceptance_criteria": [
+        "배달 300k → 절약 90,000원 CountUp + flags 저장",
+        "미시청 시 블러+숫자 비노출",
+        "배달 0건 → 빈 상태+버튼 disabled",
+        "광고 실패 → Toast, 결과 유지 블러, 크래시 없음, 당일 재진입 시 광고 스킵"
+      ]
+    },
+    "covers": [
+      "F7-AC2"
+    ],
+    "files": [
+      "src/pages/SimulationPage.tsx"
+    ],
+    "definition_of_done": [
+      "절약액 계산 90,000원 표시",
+      "TossRewardAd 게이팅 동작",
+      "배달 0건 빈 상태 disabled",
+      "광고 실패 크래시 없음, 당일 재진입 스킵"
+    ],
+    "depends_on": [
+      "0004"
+    ],
+    "db_schema": "",
+    "api_contract": "",
+    "dependencies": [],
+    "ui_requirements": "Pattern StatusPanel + 리워드 게이팅. TDS whitelist: ScreenScaffold, Top, Amount(템플릿), Button, Paragraph, Spacing, Skeleton, EmptyState(템플릿), TossRewardAd(템플릿, slotId=import.meta.env.VITE_TOSS_AD_SLOT_ID), Toast.\n```tsx\n<ScreenScaffold top={<Top title={<Top.TitleParagraph>절약 시뮬레이션</Top.TitleParagraph>} />}>\n  {noDelivery ? <EmptyState title=\"배달 기록이 아직 없어요\" action={<Button display=\"block\" disabled>시뮬레이션 하기</Button>} /> :\n    <TossRewardAd slotId={import.meta.env.VITE_TOSS_AD_SLOT_ID}>\n      <Paragraph.Text>배달을 30% 줄이면</Paragraph.Text>\n      <Amount value={90000} unit=\"원\" countUp /> 절약할 수 있어요\n    </TossRewardAd>}\n</ScreenScaffold>\n```\nStates: 미시청 결과 블러+숫자 비노출, Empty 배달0건 버튼 disabled, 광고 실패 Toast '광고를 불러오지 못했어요' 결과 블러 유지. Interactions: 시청 완료→markSimulationSeen(flags.lastSimulationDate=오늘)→CountUp 노출, 당일 재진입 시 lastSimulationDate==오늘이면 광고 스킵 바로 노출. HEX 금지."
+  },
+  {
+    "id": "0011",
+    "title": "라우팅 배선 + FloatingTabBar (App.tsx 단일 소유)",
+    "epic": "Epic 4. 통합 + 마감",
+    "task": {
+      "description": "src/App.tsx에서 react-router-dom Routes로 5개 경로(/, /budget, /record, /stats, /simulation) 연결. 각 페이지 컴포넌트 import 및 Route 정의. FloatingTabBar 3탭(홈/기록/분석) 배선 — /=홈, /stats=분석, 기록 탭은 /record 유도. 전역 Provider(store/광고·결제 SDK Provider) 배선. main.tsx는 수정 금지(@AI:ANCHOR). location.state는 RouteState 타입 사용.",
+      "acceptance_criteria": [
+        "5개 경로 정상 이동",
+        "FloatingTabBar 3탭 동작(활성탭 컬러 틴트)",
+        "전역 Provider 배선 완료",
+        "main.tsx 미수정, 프로덕션 빌드 성공"
+      ]
+    },
+    "covers": [
+      "F3-AC7"
+    ],
+    "files": [
+      "src/App.tsx"
+    ],
+    "definition_of_done": [
+      "/, /budget, /record, /stats, /simulation 5개 Route 정의",
+      "FloatingTabBar 3탭 이동",
+      "store/SDK Provider 최상단 배선",
+      "App.tsx 단일 소유(다른 패킷이 App.tsx 미수정)",
+      "빌드 성공"
+    ],
+    "depends_on": [
+      "0005",
+      "0006",
+      "0007",
+      "0008",
+      "0009",
+      "0010"
+    ],
+    "db_schema": "",
+    "api_contract": "",
+    "dependencies": [
+      "react-router-dom"
+    ],
+    "ui_requirements": "FloatingTabBar(템플릿) 3탭: 홈(/), 기록(/record), 분석(/stats). 활성탭 컬러 틴트. TDS TabBar 미존재 → FloatingTabBar만 사용. position:fixed 하단 요소 paddingBottom calc(Npx + env(safe-area-inset-bottom)). Routes는 react-router-dom, main.tsx는 @AI:ANCHOR 보호로 미수정."
+  },
+  {
+    "id": "0012",
+    "title": "광고/리워드 래퍼 컴포넌트 + 검수 스윕 폴리시",
+    "epic": "Epic 4. 통합 + 마감",
+    "task": {
+      "description": "광고/리워드 관련 컴포넌트·훅 파일만 생성(진입점 배선은 0011이 소유, App.tsx/main.tsx 수정 금지). AdSlot 배너가 홈 카드-기록섹션 사이 콘텐츠 비겹침 확인용 래퍼/헬퍼 정리. TossRewardAd 게이팅 헬퍼. 검수 스윕: grep으로 window.open/외부URL/GA/Amplitude/HEX/console.error 0 확인, 터치타깃 ≥44px, 다크모드 var(--tds-color-*) 준수. 토스 보이스톤(해요체) 점검.",
+      "acceptance_criteria": [
+        "홈 배너가 카드-기록섹션 사이 콘텐츠 비겹침",
+        "grep window.open/외부URL/GA/Amplitude/HEX/console.error 0",
+        "리워드 게이팅 헬퍼 동작",
+        "App.tsx/main.tsx files 미포함, 프로덕션 빌드 성공"
+      ]
+    },
+    "covers": [
+      "F3-AC6"
+    ],
+    "files": [
+      "src/components/AdHelpers.tsx",
+      "src/lib/adGate.ts"
+    ],
+    "definition_of_done": [
+      "광고 헬퍼 컴포넌트/훅 파일 생성",
+      "검수 스윕 grep 통과(HEX/console.error/외부URL 0)",
+      "App.tsx/main.tsx 미수정",
+      "빌드 성공"
+    ],
+    "depends_on": [
+      "0011"
+    ],
+    "db_schema": "",
+    "api_contract": "",
+    "dependencies": [],
+    "ui_requirements": "AdSlot(템플릿, adGroupId=import.meta.env.VITE_TOSS_AD_GROUP_ID) 배너 배치 헬퍼 — 콘텐츠 섹션 사이/결과 하단만. TossRewardAd(템플릿, slotId=import.meta.env.VITE_TOSS_AD_SLOT_ID) 게이팅 헬퍼. HEX 하드코딩 금지 var(--tds-color-*), 터치타깃 ≥44px, 해요체 카피, 외부 링크/설치 유도 금지."
+  },
+  {
+    "id": "0013",
+    "title": "라우팅 와이어링 + Provider 연결 + 통합 폴리시",
+    "epic": "4",
+    "task": {
+      "description": "App.tsx에 모든 페이지(BudgetPage.tsx, HomePage.tsx, RecordPage.tsx, StatsPage.tsx, SimulationPage.tsx) Route 연결, main.tsx 수정 금지(@AI:ANCHOR), 광고/결제 연동, 최종 UX 폴리시",
+      "acceptance_criteria": [
+        "App.tsx에 모든 페이지 Route가 정의되어 있다",
+        "모든 navigate() 대상에 Route가 존재한다",
+        "main.tsx의 TDSMobileAITProvider/BrowserRouter가 유지되어 있다",
+        "앱이 '/' 경로에서 정상 렌더링된다"
+      ]
+    },
+    "files": [
+      "src/App.tsx"
+    ],
+    "covers": [],
+    "definition_of_done": [
+      "typecheck pass",
+      "all routes accessible",
+      "no console errors"
+    ],
+    "depends_on": [
+      "0012"
+    ]
+  }
+]
