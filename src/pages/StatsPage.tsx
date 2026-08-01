@@ -6,16 +6,9 @@ import { DonutChart } from '@/components/DonutChart';
 import { MiniBar } from '@/components/MiniBar';
 import { Sparkline } from '@/components/Sparkline';
 import { EmptyState, LoadingState } from '@/components/StateView';
-import { FloatingTabBar } from '@/components/FloatingTabBar';
 import { useDerived } from '@/lib/store';
 import { formatKRW } from '@/lib/format';
 import type { MealCategory } from '@/lib/types';
-
-const TAB_ITEMS = [
-  { label: '홈', path: '/' },
-  { label: '기록', path: '/record' },
-  { label: '통계', path: '/stats' },
-];
 
 const CATEGORY_ORDER: MealCategory[] = ['delivery', 'dining_out', 'homemade'];
 const CATEGORY_LABEL: Record<MealCategory, string> = {
@@ -65,7 +58,6 @@ export default function StatsPage() {
   return (
     <ScreenScaffold
       top={<Top title={<Top.TitleParagraph>주간 분석</Top.TitleParagraph>} />}
-      bottom={<FloatingTabBar items={TAB_ITEMS} />}
     >
       {appData.loading ? (
         <LoadingState rows={3} testId="stats-loading" />

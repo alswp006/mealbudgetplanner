@@ -8,16 +8,9 @@ import { Amount } from '@/components/Amount';
 import { MiniBar } from '@/components/MiniBar';
 import { EmptyState, LoadingState } from '@/components/StateView';
 import { AllowanceHero } from '@/components/AllowanceHero';
-import { FloatingTabBar } from '@/components/FloatingTabBar';
 import { OverBudgetAlert } from '@/components/OverBudgetAlert';
 import { CheckInSection } from '@/components/CheckInSection';
 import { useDerived } from '@/lib/store';
-
-const TAB_ITEMS = [
-  { label: '홈', path: '/' },
-  { label: '기록', path: '/record' },
-  { label: '통계', path: '/stats' },
-];
 
 const AD_GROUP_ID = (import.meta.env.VITE_TOSS_AD_GROUP_ID as string | undefined) ?? 'home-checkin';
 
@@ -72,7 +65,6 @@ export default function Home() {
           right={<Chip>{monthChip}</Chip>}
         />
       }
-      bottom={<FloatingTabBar items={TAB_ITEMS} />}
     >
       {appData.loading ? (
         <LoadingState rows={2} testId="home-loading" />
