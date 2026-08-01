@@ -222,3 +222,4 @@ CRITICAL: Before creating any new function, type, or component, check the list a
 - 0008: 식사 기록 페이지 /record (files: src/pages/RecordPage.tsx)
 - 0009: 주간 분석 페이지 /stats (files: src/pages/StatsPage.tsx, src/components/DonutChart.tsx)
 - heal-1-02: 광고/리워드 래퍼 컴포넌트 + 시뮬레이션 리워드 게이팅 결선 (files: src/components/ads/AdBannerSlot.tsx, src/components/ads/RewardGate.tsx, src/pages/simulation/SimulationPage.tsx)
+- 0011: 라우팅 배선 + FloatingTabBar (App.tsx 단일 소유) (files: src/App.tsx)
