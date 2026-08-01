@@ -62,15 +62,20 @@ export default function StatsPage() {
       {appData.loading ? (
         <LoadingState rows={3} testId="stats-loading" />
       ) : isEmpty ? (
-        <EmptyState
-          title="이번 주 기록이 아직 없어요"
-          description="식사를 기록하면 주간 분석을 볼 수 있어요"
-          action={
-            <Button variant="fill" display="block" onClick={() => navigate('/record')}>
-              기록하러 가기
-            </Button>
-          }
-        />
+        <>
+          <EmptyState
+            title="이번 주 기록이 아직 없어요"
+            description="식사를 기록하면 주간 분석을 볼 수 있어요"
+            action={
+              <Button variant="fill" display="block" onClick={() => navigate('/record')}>
+                기록하러 가기
+              </Button>
+            }
+          />
+          <Button variant="weak" display="block" onClick={() => navigate('/budget')}>
+            이번 달 예산 확인하기
+          </Button>
+        </>
       ) : (
         <>
           <DonutChart segments={segments} testId="donut-chart" />
@@ -108,6 +113,12 @@ export default function StatsPage() {
 
           <Button variant="weak" display="block" onClick={() => navigate('/simulation')}>
             절약 시뮬레이션 보기
+          </Button>
+
+          <Spacing size={12} />
+
+          <Button variant="weak" display="block" onClick={() => navigate('/budget')}>
+            이번 달 예산 확인하기
           </Button>
         </>
       )}

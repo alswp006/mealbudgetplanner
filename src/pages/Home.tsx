@@ -109,6 +109,10 @@ export default function Home() {
             <Amount value={spentThisMonth} unit="원" typography="st12" />
             <Spacing size={12} />
             <MiniBar ratio={progressRatio} testId="budget-progress" />
+            <Spacing size={12} />
+            <Button variant="weak" display="block" onClick={() => navigate('/budget')}>
+              예산 수정하기
+            </Button>
           </Card>
 
           <Spacing size={16} />
