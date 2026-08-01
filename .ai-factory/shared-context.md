@@ -136,6 +136,7 @@ export type RouteState = {
     contract.ts
     format.ts
     storage.ts
+    store.ts
     types.ts
     utils.ts
   main.tsx
@@ -153,6 +154,7 @@ export type RouteState = {
 - contract.ts: export type Transaction =; export type Budget =; export type RouteState = 'home' | 'budget' | 'record' | 'stats' | 'simulation'; export type formatAmountFn = (amount: number) => string; export type formatDateFn = (date: string) => string; export type calculateRemainingFn = (spent: number, limit: number) => number; export type isOverBudgetFn = (spent: number, limit: number) => boolean; export type useBudgetStoreFn = () =>
 - format.ts: export function formatKRW(amount: number): string
 - storage.ts: export function getItem<T>(key: string): T | null; export function setItem<T>(key: string, value: T): void; export function removeItem(key: string): void; export function safeParse<T>(key: string, fallback: T): T; export function getMeals(): MealRecord[]; export function addMeal(input: Omit<MealRecord, 'id' | 'createdAt'>): WriteResult; export function getBudget(month: string): MonthlyBudget | null; export function setBudget(month: string, budget: MonthlyBudget): WriteResult
+- store.ts: export interface AppData; export function useAppData(today: string); export interface DerivedValues; export function useDerived(today: string): DerivedValues &
 - types.ts: export type MealType = 'breakfast' | 'lunch' | 'dinner' | 'snack'; export type MealCategory = 'delivery' | 'homemade' | 'dining_out'; export type PaceBadge = 'ahead' | 'ontrack' | 'over'; export interface MonthlyBudget; export interface MealRecord; export interface DailyCheckIn; export interface AppFlags; export interface RemainingResult
 - utils.ts: export function cn(...classes: (string | boolean | undefined | null)[]): string; export function formatNumber(n: number): string; export function formatCurrency(n: number, currency = 'KRW'): string
 
@@ -175,9 +177,11 @@ export type RouteState = {
 ### Module Dependencies (import graph)
   lib/calc.ts → imports: lib/types
   lib/storage.ts → imports: lib/types
+  lib/store.ts → imports: lib/types, lib/storage, lib/calc
 CRITICAL: Before creating any new function, type, or component, check the list above. If something similar exists, import and use it.
 
 ## Already Implemented (do NOT duplicate or overwrite)
 - 0001: 엔티티 타입 + RouteState 정의 (files: src/lib/types.ts)
 - 0002: localStorage 저장소 헬퍼 (CRUD + 방어) (files: src/lib/storage.ts)
 - 0003: 계산 엔진 + 금액 포맷 순수함수 (files: src/lib/calc.ts, src/lib/format.ts)
+- 0004: 상태 관리 훅/스토어 (files: src/lib/store.ts)
