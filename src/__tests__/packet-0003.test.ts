@@ -37,6 +37,16 @@ describe("계산 엔진 + 금액 포맷 순수함수 (packet-0003)", () => {
     const { getRemainingPerMeal } = require("@/lib/calc");
     const meals: MealRecord[] = [
       {
+        // 이번 달 누적 지출 200k 중 오늘 이전분(196k) — AC 시나리오의 "누적 200k" 재현
+        id: "0",
+        date: "2026-08-01",
+        mealType: "dinner",
+        category: "dining_out",
+        amount: 196000,
+        memo: "",
+        createdAt: Date.now(),
+      },
+      {
         id: "1",
         date: "2026-08-02",
         mealType: "breakfast",
