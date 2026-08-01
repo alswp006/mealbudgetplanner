@@ -123,6 +123,7 @@ export type RouteState = {
     Card.tsx
     CheckInSection.tsx
     CountUp.tsx
+    DonutChart.tsx
     FloatingTabBar.tsx
     MiniBar.tsx
     OverBudgetAlert.tsx
@@ -144,8 +145,12 @@ export type RouteState = {
     utils.ts
   main.tsx
   pages/
+    BudgetPage.tsx
     Home.tsx
+    RecordPage.tsx
+    StatsPage.tsx
     __TdsGallery.tsx
+    __chiptest.tsx
   styles/
     globals.css
     reward-ad.css
@@ -169,6 +174,7 @@ export type RouteState = {
 - Card.tsx: Card
 - CheckInSection.tsx: CheckInSection
 - CountUp.tsx: CountUp
+- DonutChart.tsx: DonutChart
 - FloatingTabBar.tsx: FloatingTabBar
 - MiniBar.tsx: MiniBar
 - OverBudgetAlert.tsx: OverBudgetAlert
@@ -184,7 +190,10 @@ export type RouteState = {
   lib/calc.ts → imports: lib/types
   lib/storage.ts → imports: lib/types
   lib/store.ts → imports: lib/types, lib/storage, lib/calc
+  pages/BudgetPage.tsx → imports: components/ScreenScaffold, components/BottomCTA, lib/store
   pages/Home.tsx → imports: components/ScreenScaffold, components/Card, components/Amount, components/MiniBar, components/StateView, components/AllowanceHero, components/FloatingTabBar, lib/store
+  pages/RecordPage.tsx → imports: components/ScreenScaffold, components/BottomCTA, lib/store, lib/types
+  pages/StatsPage.tsx → imports: components/ScreenScaffold, components/Card, components/DonutChart, components/MiniBar, components/Sparkline, components/StateView, components/FloatingTabBar, lib/store, lib/format, lib/types
 CRITICAL: Before creating any new function, type, or component, check the list above. If something similar exists, import and use it.
 
 ## Already Implemented (do NOT duplicate or overwrite)
@@ -196,3 +205,4 @@ CRITICAL: Before creating any new function, type, or component, check the list a
 - 0007: 홈 초과 경고 배너(F8) + 체크인 섹션(F5) + 배너광고 (files: src/components/OverBudgetAlert.tsx, src/components/CheckInSection.tsx)
 - 0005: 예산 설정 페이지 /budget (files: src/pages/BudgetPage.tsx)
 - 0008: 식사 기록 페이지 /record (files: src/pages/RecordPage.tsx)
+- 0009: 주간 분석 페이지 /stats (files: src/pages/StatsPage.tsx, src/components/DonutChart.tsx)
